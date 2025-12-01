@@ -76,7 +76,7 @@ const AuthProvider = ({ children }) => {
     const dummyUser = {
         id: 99,
         name: 'Test Admin',
-        role: 'admin' // Corregido para coincidir con la API real
+        role: { name: 'Admin' } // Estandarizado para que coincida con la estructura del Dashboard
     };
     const dummyToken = 'dummy-auth-token-for-offline-mode';
     localStorage.setItem('authToken', dummyToken);

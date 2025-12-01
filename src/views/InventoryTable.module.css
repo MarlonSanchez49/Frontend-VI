@@ -1,0 +1,282 @@
+/* Variables de color */
+:root {
+  --primary-bg: #f4f6f9;
+  --card-bg: #ffffff;
+  --sidebar-bg: #323d4c;
+  --sidebar-active: #4a90e2;
+  --text-primary: #333;
+  --text-secondary: #666;
+  --border-color: #e0e0e0;
+
+  /* Colores de Acciones */
+  --view-color: #5540D3; /* Morado/Azul */
+  --edit-color: #5540D3; /* Morado/Azul */
+  --delete-color: #e74c3c; /* Rojo */
+  --add-button-color: #2ecc71; /* Verde */
+  --logout-button-color: #e74c3c; /* Rojo */
+}
+
+.dashboardContainer {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--primary-bg);
+}
+
+/* ------------------------------------ */
+/* 1. Sidebar (Navbar Izquierdo) */
+/* ------------------------------------ */
+
+.sidebar {
+  width: 70px; /* Ancho fijo como en la captura */
+  background-color: var(--sidebar-bg);
+  color: var(--card-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 15px;
+  margin-bottom: 20px;
+  color: var(--sidebar-active); /* Color de la V en la captura */
+}
+
+.navItems {
+  flex-grow: 1; /* Ocupa el espacio restante */
+  width: 100%;
+}
+
+.navItem {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  padding: 15px 0;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  position: relative;
+  opacity: 0.7;
+}
+
+.navItem:hover {
+  background-color: #4a5464;
+  opacity: 1;
+}
+
+.active {
+  background-color: #4a5464; /* Fondo para el elemento activo */
+  color: var(--sidebar-active);
+  opacity: 1;
+}
+
+.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px; /* Barra lateral de color azul */
+  background-color: var(--sidebar-active);
+  border-radius: 0 5px 5px 0;
+}
+
+.helpItem {
+  color: var(--logout-button-color); /* Color rojo para el botón de ayuda */
+  opacity: 1;
+}
+.helpItem:hover {
+  background-color: #4a5464;
+}
+
+/* ------------------------------------ */
+/* 2. Header Superior y Contenido */
+/* ------------------------------------ */
+
+.mainContent {
+  flex-grow: 1;
+  padding: 0 30px 30px 30px; /* Sin padding arriba para el header */
+}
+
+.header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 80px; /* Altura de la barra superior */
+  background-color: var(--primary-bg);
+  padding: 0 10px;
+  margin-bottom: 20px; /* Espacio debajo del header */
+}
+
+.logoutButton {
+  background-color: var(--logout-button-color);
+  color: var(--card-bg);
+  border: none;
+  padding: 10px 15px;
+  border-radius: 50px; /* Botón de sesión redondeado */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.logoutButton:hover {
+  background-color: #c0392b;
+}
+
+/* ------------------------------------ */
+/* 3. Sección de Inventario */
+/* ------------------------------------ */
+
+.inventorySection {
+  background-color: var(--card-bg);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.sectionTitle {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  gap: 20px;
+}
+
+.searchBox {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  background-color: var(--primary-bg); /* Fondo gris claro para el input */
+  border-radius: 8px;
+  padding: 0 15px;
+  max-width: 500px;
+  height: 45px;
+}
+
+.searchIcon {
+  color: var(--text-secondary);
+  margin-right: 10px;
+}
+
+.searchInput {
+  border: none;
+  background: transparent;
+  width: 100%;
+  padding: 10px 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.searchInput:focus {
+  outline: none;
+}
+
+.addButton {
+  background-color: var(--add-button-color);
+  color: var(--card-bg);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.addButton:hover {
+  background-color: #27ae60;
+}
+
+/* ------------------------------------ */
+/* 4. Tabla */
+/* ------------------------------------ */
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.productTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.productTable th {
+  background-color: var(--primary-bg);
+  color: var(--text-secondary);
+  padding: 15px 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.productTable td {
+  padding: 15px 10px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.productName {
+  font-weight: 500;
+}
+
+.productTable tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Columna de Acciones */
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.actionButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  font-size: 1.1rem;
+  transition: opacity 0.2s;
+}
+
+.actionButton:hover {
+  opacity: 0.8;
+}
+
+.viewIcon {
+  color: var(--view-color);
+}
+
+.editIcon {
+  color: var(--edit-color);
+}
+
+.deleteIcon {
+  color: var(--delete-color);
+}
+
+.noResults {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+  font-style: italic;
+}

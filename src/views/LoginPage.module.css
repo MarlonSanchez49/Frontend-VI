@@ -1,84 +1,186 @@
-.container {
+/* Variables CSS (opcional, pero recomendable) */
+:root {
+  --primary-color: #5540D3; /* El color morado oscuro del fondo */
+  --secondary-color: #FFFFFF;
+  --button-color: #2F69E6; /* Azul del botón de Ingresar */
+  --text-light: #F0F0F0;
+  --text-dark: #333333;
+}
+
+/* ------------------------------------------- */
+/* Contenedor Principal y Estructura de Columnas */
+/* ------------------------------------------- */
+
+.fullScreenContainer {
   display: flex;
-  align-items: center;
-  justify-content: center;
   min-height: 100vh;
-  background-color: #f0f2f5;
+  width: 100vw;
+  background-image: url('/BG-principal.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--secondary-color);
+  font-family: 'Montserrat', sans-serif;
+  overflow: hidden; /* Para contener los elementos de fondo si se agregaran */
 }
 
-.formBox {
-  padding: 2rem;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  width: 100%;
-  max-width: 24rem; /* 384px */
+/* Columna Izquierda (Contenido de Marketing) */
+.contentColumn {
+  flex: 1; /* Ocupa la mitad del espacio */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0 5%;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
 }
 
-.title {
-  font-size: 1.5rem; /* 24px */
-  font-weight: 700;
+.mainTitle {
+  font-size: 5rem;
+  font-weight: bold;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  max-width: 450px;
+}
+
+.acquireButton {
+  background-color: var(--button-color); /* Usar el color azul de botón */
+  color: var(--secondary-color);
+  border: none;
+  padding: 12px 32px; /* Ajuste de padding */
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.acquireButton:hover {
+  background-color: #1a4da3; /* Un azul un poco más oscuro */
+}
+
+/* ------------------------------------------- */
+/* Columna Derecha (Formulario de Login) */
+/* ------------------------------------------- */
+
+.formColumn {
+  flex: 1; /* Ocupa la otra mitad */
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro semitransparente, un poco más opaco */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background-image: none;
+}
+
+.logoTitle {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 40px;
   text-align: center;
-  color: #1f2937; /* gray-800 */
-  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.loginForm {
+  width: 100%;
+  max-width: 400px;
+  padding: 0 20px;
 }
 
 .formGroup {
-  margin-bottom: 1rem;
-}
-
-.formLabel {
-  display: block;
-  color: #4b5563; /* gray-600 */
-  font-size: 0.875rem; /* 14px */
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+  margin-bottom: 20px;
 }
 
 .input {
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  appearance: none;
-  border: 1px solid #d1d5db; /* gray-300 */
-  border-radius: 6px;
   width: 100%;
-  padding: 0.5rem 0.75rem;
-  color: #1f2937;
-  line-height: 1.5;
-}
-
-.input:focus {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  border-color: #4f46e5; /* indigo-600 */
-}
-
-.button {
-  background-color: #3b82f6; /* blue-500 */
-  color: white;
-  font-weight: 700;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  width: 100%;
+  padding: 15px 20px;
   border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  /* Color de fondo del input como en la imagen */
+  background-color: var(--secondary-color); 
+  color: var(--text-dark);
+  box-sizing: border-box;
+}
+
+/* Placeholder styling (opcional) */
+.input::placeholder {
+  color: #AAAAAA;
+}
+
+.forgotPassword {
+  text-align: right;
+  font-size: 0.9rem;
+  margin-bottom: 30px;
+  color: var(--text-light); /* Texto blanco */
   cursor: pointer;
-  transition: background-color 0.2s;
 }
 
-.button:hover {
-  background-color: #2563eb; /* blue-600 */
+.loginButton {
+  width: 100%;
+  padding: 15px 20px;
+  background-color: var(--primary-color); /* Cambiado al color primario */
+  color: var(--secondary-color);
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.button:disabled {
-  background-color: #9ca3af; /* gray-400 */
+.loginButton:hover {
+  background-color: #4527A0; /* Un morado más oscuro */
+}
+
+.loginButton:disabled {
+  background-color: #6c7bb0;
   cursor: not-allowed;
 }
 
 .error {
-  background-color: #fee2e2; /* red-100 */
-  border: 1px solid #f87171; /* red-400 */
-  color: #b91c1c; /* red-700 */
-  padding: 1rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
+  color: #FFD2D2;
+  background-color: #C00000;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 0.9rem;
 }
+
+/* ------------------------------------------- */
+/* Credenciales de Prueba */
+/* ------------------------------------------- */
+
+.testCredentialsBox {
+  margin-top: 40px;
+  padding: 15px 25px;
+  background-color: #3d3d3d; /* Fondo oscuro para el recuadro */
+  color: var(--secondary-color);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
+}
+
+.testCredentialsBox p {
+  margin: 5px 0;
+}
+
+.testCredential {
+  font-family: monospace;
+}
+
+/* ------------------------------------------- */
+/* Limpieza de etiquetas no necesarias en la imagen (labels) */
+/* ------------------------------------------- */
+/* NOTA: En la versión modificada de JSX quitamos los labels */ 

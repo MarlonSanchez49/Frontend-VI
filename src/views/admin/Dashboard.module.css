@@ -1,55 +1,204 @@
-.title {
-  font-size: 1.875rem; /* 30px */
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: #1f2937; /* gray-800 */
+/* Variables de color */
+:root {
+  --primary-bg: #f5f5f5; /* Fondo gris claro */
+  --card-bg: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --sidebar-active: #3b82f6;
+  --status-low: #f59e0b; /* Naranja para "Bajo Stock" */
+  --status-normal: #10b981; /* Verde para "Normal" */
+  --logout-button-color: #ef4444;
+  --border-color: #e0e0e0;
 }
 
-.grid {
+.dashboardContent {
+  padding: 1.5rem;
+}
+
+/* ------------------------------------ */
+/* Header y Controles de Usuario */
+/* ------------------------------------ */
+
+.header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.userControls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--card-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.userName { font-weight: 600; color: var(--text-primary); }
+.userRole { font-size: 0.8rem; color: var(--text-secondary); }
+
+.logoutButton {
+    cursor: pointer;
+    background-color: var(--logout-button-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.15s;
+}
+.logoutButton:hover { background-color: #c0392b;
+}
+
+/* ------------------------------------ */
+/* Grid de Contenido (Gráfico y Empleado) */
+/* ------------------------------------ */
+
+.contentGrid {
   display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 2rem;
 }
-
-/* Medium screens (>= 768px) */
-@media (min-width: 768px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-/* Large screens (>= 1024px) */
 @media (min-width: 1024px) {
-  .grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  .contentGrid {
+    grid-template-columns: 2fr 1fr; /* Columna de Gráfico 2/3, Empleado 1/3 */
   }
 }
 
-.chartContainer {
-  margin-top: 2rem;
-  background-color: white;
+.chartCard, .employeeCard {
+  background-color: var(--card-bg);
   padding: 1.5rem;
   border-radius: 1rem;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
+/* --- Estilos del Gráfico de Barras --- */
 .chartTitle {
-  font-size: 1.25rem; /* 20px */
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937; /* gray-800 */
-  margin-bottom: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
 }
 
 .chartWrapper {
-  height: 24rem; /* 384px */
+    height: 320px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.loading, .error {
-  text-align: center;
-  padding: 2.5rem;
-  font-size: 1.125rem;
+.noData {
+    font-style: italic;
+    color: var(--text-secondary);
 }
 
-.error {
-  color: #ef4444; /* red-500 */
+/* --- Estilos de Empleado del Mes --- */
+.employeeCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
 }
+
+.employeeTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.employeeAvatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    background-color: var(--primary-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid var(--text-secondary);
+    color: var(--text-secondary);
+    font-size: 3rem;
+}
+
+.employeeName {
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.employeeRole {
+    color: var(--sidebar-active);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.employeeFireIcon {
+    font-size: 2rem;
+    color: #f59e0b;
+}
+
+/* ------------------------------------ */
+/* Resumen de Inventario */
+/* ------------------------------------ */
+
+.inventorySummary {
+    margin-top: 2rem;
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.summaryTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+}
+
+.tableContainer {
+    overflow-x: auto;
+}
+
+.summaryTable {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.summaryTable th {
+    color: var(--text-secondary);
+    padding: 12px 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.summaryTable td {
+    padding: 15px 10px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.summaryTable tr:last-child td {
+    border-bottom: none;
+}
+
+.statusBadge {
+    padding: 4px 10px;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+}
+.normal { background-color: var(--status-normal); }
+.bajostock { background-color: var(--status-low); }

@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Sidebar from '../../components/Sidebar'; // Asegúrate que la ruta sea correcta
-import { useAuth } from '../../hooks/useAuth';
-import { FaEye, FaEdit, FaTrash, FaPlus, FaSearch, FaSignOutAlt } from 'react-icons/fa';
-import styles from './InventoryPage.module.css';
+import styles from './InventoryTable.module.css';
+import { FaEye, FaEdit, FaTrash, FaPlus, FaSearch, FaSignOutAlt, FaBox, FaChartBar, FaUsers, FaQuestionCircle } from 'react-icons/fa';
 
-// Datos de ejemplo basados en tu captura
+// Datos de ejemplo basados en tu captura de pantalla
 const initialProducts = [
   { id: 1, name: 'Aguardiente Amarillo', quantity: 92, minQuantity: 30, cost: '28.270', price: '42.500' },
   { id: 2, name: 'Vodka Oddka', quantity: 17, minQuantity: 8, cost: '42.150', price: '76.750' },
@@ -14,22 +11,20 @@ const initialProducts = [
   { id: 5, name: 'Buchanans Master 18 Años', quantity: 7, minQuantity: 5, cost: '35.150', price: '82.450' },
 ];
 
-const InventoryPage = () => {
+const InventoryTable = () => {
   const [products, setProducts] = useState(initialProducts);
   const [searchTerm, setSearchTerm] = useState('');
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
 
-  // --- Funcionalidades CRUD ---
+  // --- Funcionalidades de la tabla ---
 
   const handleView = (id) => {
     alert(`Ver detalles del producto ID: ${id}`);
-    // navigate(`/admin/product/${id}`);
+    // Aquí iría la lógica para redirigir o abrir un modal de vista
   };
 
   const handleEdit = (id) => {
     alert(`Editar producto ID: ${id}`);
-    // navigate(`/admin/product/edit/${id}`);
+    // Aquí iría la lógica para redirigir o abrir un formulario de edición
   };
 
   const handleDelete = (id) => {
@@ -40,37 +35,44 @@ const InventoryPage = () => {
 
   const handleAddProduct = () => {
     alert('Abrir formulario para Añadir Producto');
-    // navigate('/admin/product/add');
+    // Aquí iría la lógica para abrir un modal o redirigir a la página de creación
   };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login', { replace: true });
-  };
-
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className={styles.dashboardLayout}>
+    <div className={styles.dashboardContainer}>
       
-      {/* 1. Navbar Lateral Izquierda (El componente azul de íconos) */}
-      <Sidebar />
+      {/* Navbar Lateral Izquierda */}
+      <nav className={styles.sidebar}>
+        <div className={styles.logo}>V</div>
+        <div className={styles.navItems}>
+          {/* Item activo (Inventario - basado en el color azul claro) */}
+          <div className={`${styles.navItem} ${styles.active}`} title="Inventario">
+            <FaBox />
+          </div>
+          <div className={styles.navItem} title="Estadísticas">
+            <FaChartBar />
+          </div>
+          <div className={styles.navItem} title="Usuarios">
+            <FaUsers />
+          </div>
+        </div>
+        <div className={`${styles.navItem} ${styles.helpItem}`} title="Ayuda">
+          <FaQuestionCircle />
+        </div>
+      </nav>
 
-      {/* 2. Contenido Principal */}
+      {/* Contenido Principal */}
       <div className={styles.mainContent}>
         
-        {/* Header Superior con Botón de Logout */}
+        {/* Header Superior */}
         <header className={styles.header}>
-            <div className={styles.userControls}>
-                <span className={styles.userName}>{user?.name || 'Usuario'}</span>
-                <span className={styles.userRole}>{user?.role?.name || 'Rol'}</span>
-                <button onClick={handleLogout} className={styles.logoutButton}>
-                    <FaSignOutAlt /> Cerrar sesión
-                </button>
-            </div>
+          <button className={styles.logoutButton}>
+            <FaSignOutAlt /> Cerrar sesión
+          </button>
         </header>
 
         {/* Sección de Inventario General */}
@@ -142,4 +144,4 @@ const InventoryPage = () => {
   );
 };
 
-export default InventoryPage;
+export default InventoryTable;

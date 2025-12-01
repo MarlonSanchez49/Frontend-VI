@@ -3,11 +3,23 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import styles from './Sidebar.module.css';
 import { useAuth } from '../hooks/useAuth';
 
+import logo from '../../public/logo.png'; // Asegúrate de tener logo.png en src/assets/
+// Importar los íconos de la barra lateral
+import { 
+    FaChartBar, // Gráfico para Dashboard
+    FaUsers,    // Personas para Empleados
+    FaBox,      // Caja para Inventario
+    FaBook,     // Libro para Contabilidad
+    FaChartPie, // Gráfico para Reportes
+    FaQuestionCircle, // Ícono para Ayuda
+} from 'react-icons/fa';
+
+// Definición de enlaces y sus íconos
 const adminLinks = [
-  { name: 'Dashboard', href: '/admin/dashboard' },
-  { name: 'Empleados', href: '/admin/employees' },
-  { name: 'Inventario', href: '/admin/inventory' },
-  { name: 'Contabilidad', href: '/admin/accounting' },
+  { name: 'Dashboard', href: '/admin/dashboard', icon: FaChartBar, title: 'Dashboard' },
+  { name: 'Empleados', href: '/admin/employees', icon: FaUsers, title: 'Empleados' },
+  { name: 'Inventario', href: '/admin/inventory', icon: FaBox, title: 'Inventario' },
+  { name: 'Contabilidad', href: '/admin/accounting', icon: FaBook, title: 'Contabilidad' },
 ];
 
 const Sidebar = () => {
@@ -16,30 +28,45 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     auth.logout();
-    navigate('/login', { replace: true }); // Asegura la redirección inmediata
+    navigate('/login', { replace: true });
   };
 
   return (
     <div className={styles.sidebar}>
-      <div className={styles.title}>Mi Empresa</div>
+      
+      {/* 1. Logo 'V' */}
+      <div className={styles.logoContainer}>
+        <NavLink to="/admin/dashboard" title="VertexInventory" className={styles.logoLink}>
+            <img src={logo} alt="VertexInventory Logo" className={styles.logoIcon} />
+        </NavLink>
+      </div>
+
+      {/* 2. Navegación Principal */}
       <nav className={styles.nav}>
-        <div>
-          {adminLinks.map((link) => (
-            <NavLink
-              key={link.name}
-              to={link.href}
-              className={({ isActive }) =>
-                `${styles.navLink} ${isActive ? styles.active : ''}`
-              }
-            >
-              {link.name}
-            </NavLink>
-          ))}
-        </div>
-        <button onClick={handleLogout} className={styles.logoutButton}>
-          Cerrar Sesión
-        </button>
+        {adminLinks.map((link) => (
+          // Usamos 'link.icon' para renderizar el componente de ícono
+          <NavLink
+            key={link.name}
+            to={link.href}
+            title={link.title}
+            className={({ isActive }) =>
+              `${styles.navItem} ${isActive ? styles.active : ''}`
+            }
+          >
+            <link.icon />
+          </NavLink>
+        ))}
       </nav>
+      
+      {/* 3. Botón/Sección de Alerta/Ayuda (Rojo en la parte inferior) */}
+      <div className={styles.helpContainer}>
+        <div className={styles.helpItem} title="Ayuda / Alerta">
+          {/* Usamos FaQuestionCircle, pero puede ser cualquier ícono de alerta */}
+          <FaQuestionCircle />
+        </div>
+      </div>
+      
+      {/* NOTA: El botón 'Cerrar Sesión' se traslada al Header Superior en el diseño de íconos. */}
     </div>
   );
 };

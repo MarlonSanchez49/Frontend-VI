@@ -1,59 +1,118 @@
+/* Variables de color */
+:root {
+  --sidebar-bg: #1e3a8a; /* Azul oscuro */
+  --icon-color: #9ca3af; /* Gris claro para íconos inactivos */
+  --icon-active: #3b82f6; /* Azul brillante para ícono activo */
+  --help-bg: #dc2626; /* Fondo rojo para la ayuda/alerta */
+}
+
 .sidebar {
-  width: 16rem; /* 256px */
-  height: 100vh;
-  background-color: #1f2937; /* gray-800 */
+  /* Layout principal: Barra vertical estrecha */
+  width: 70px; 
+  background-color: var(--sidebar-bg);
   color: white;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 1rem 0;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+  position: fixed; /* Fijo para que esté siempre visible */
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 50;
 }
 
-.title {
-  padding: 1.25rem;
-  font-size: 1.5rem; /* 24px */
-  font-weight: 700;
+/* -------------------- */
+/* 1. Logo 'V' */
+/* -------------------- */
+
+.logoContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+  margin-top: 0.5rem;
 }
+
+.logoLink {
+  /* Contenedor del logo para el área de clic */
+  width: 40px;
+  height: 40px;
+  padding: 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logoIcon {
+    /* Estilo para la imagen del logo */
+    width: 100px; /* Ajusta el tamaño según tu logo */
+    height: 32px;
+    object-fit: contain; /* Asegura que el logo se vea bien sin distorsionarse */
+}
+
+/* -------------------- */
+/* 2. Navegación Principal */
+/* -------------------- */
 
 .nav {
-  flex-grow: 1;
-  padding: 1rem 0.5rem;
   display: flex;
-  flex-direction: column; /* Para empujar el logout hacia abajo */
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-grow: 1; /* Ocupa el espacio central */
+  width: 100%;
 }
 
-.navLink {
-  display: block;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem; /* 14px */
-  font-weight: 500;
-  color: white;
-  text-decoration: none;
-  transition: background-color 0.2s;
-  margin-bottom: 0.25rem;
+.navItem {
+  /* Estilo base para todos los ítems de navegación */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.75rem;
+  font-size: 1.5rem; /* Tamaño grande para los íconos */
+  color: var(--icon-color); 
+  transition: color 0.15s, background-color 0.15s;
+  cursor: pointer;
+  text-decoration: none; /* Asegura que no haya subrayado */
 }
 
-.navLink:hover {
-  background-color: #374151; /* gray-700 */
+.navItem:hover {
+  color: var(--icon-active);
 }
 
 .active {
-  background-color: #111827; /* gray-900 */
+    /* Estilo del ítem seleccionado */
+    color: var(--icon-active);
+    position: relative;
+    /* Barra lateral azul que indica el ítem activo (opcional) */
+    /*
+    background-color: #1e40af; 
+    */
 }
 
-.logoutButton {
-  margin-top: auto; /* Empuja el botón hacia abajo */
-  margin: 1rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid #4b5563; /* gray-600 */
-  border-radius: 6px;
-  background-color: transparent;
-  color: white;
+/* -------------------- */
+/* 3. Ayuda / Alerta (Rojo Inferior) */
+/* -------------------- */
+
+.helpContainer {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.helpItem {
+  /* Estilo del círculo rojo con ícono */
+  width: 40px;
+  height: 40px;
+  padding: 0.5rem;
+  border-radius: 50%; /* Círculo completo */
+  background-color: var(--help-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
   cursor: pointer;
-  text-align: center;
-  font-weight: 500;
-  transition: background-color 0.2s;
-}
-
-.logoutButton:hover {
-  background-color: #374151; /* gray-700 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: white;
 }

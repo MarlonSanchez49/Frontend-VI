@@ -1,0 +1,261 @@
+/* Variables de color */
+:root {
+  --primary-bg: #f5f5f5;
+  --card-bg: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --border-color: #e0e0e0;
+  
+  /* Colores de Stats */
+  --stat-blue: #3b82f6;
+  --stat-green: #10b981;
+  --stat-orange: #f97316;
+  --stat-purple: #9333ea; 
+  
+  /* Colores de Estado */
+  --status-activo: #34d399; /* Verde claro */
+  --status-vacaciones: #fcd34d; /* Amarillo */
+
+  /* Colores de Acciones */
+  --action-link: #3b82f6;
+  --action-delete: #e74c3c;
+  --logout-button-color: #ef4444; 
+}
+
+.dashboardLayout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--primary-bg);
+}
+
+/* ------------------------------------ */
+/* 1. Contenido Principal y Header */
+/* ------------------------------------ */
+
+.mainContent {
+  flex-grow: 1;
+  /* El padding izquierdo compensa el ancho fijo del sidebar (70px) */
+  padding: 0 30px 30px 100px; 
+  overflow-y: auto;
+}
+
+.header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between; /* Alinear título a la izquierda y controles a la derecha */
+    align-items: center; /* Centrar verticalmente */
+    padding-top: 20px;
+    margin-bottom: 20px;
+}
+
+.titleGroup {
+    flex-grow: 1; /* Ocupa el espacio disponible */
+}
+
+.pageTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.pageSubtitle {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.userControls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--card-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.userName {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.userRole { font-size: 0.8rem; color: var(--text-secondary); }
+
+.logoutButton {
+    cursor: pointer;
+    background-color: var(--logout-button-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.15s;
+    gap: 0.5rem;
+}
+.logoutButton:hover {
+    background-color: #c0392b;
+}
+
+
+/* ------------------------------------ */
+/* 2. Tarjetas de Estadísticas */
+/* ------------------------------------ */
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+@media (min-width: 768px) {
+    .statsGrid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.statCard {
+    background-color: var(--card-bg);
+    color: white;
+    padding: 1.25rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+/* Colores de las tarjetas */
+.blue { background-color: var(--stat-blue); }
+.green { background-color: var(--stat-green); }
+.orange { background-color: var(--stat-orange); }
+.purple { background-color: var(--stat-purple); }
+
+.statIcon {
+    font-size: 2.25rem;
+    opacity: 0.9;
+}
+
+.statContent { }
+
+.statLabel {
+    font-size: 0.85rem; /* Hacemos el texto más compacto */
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+.statValue {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+.statSubValue {
+    font-size: 0.85rem; /* Hacemos el sub-valor más compacto */
+    font-weight: 400;
+    opacity: 0.9;
+}
+
+
+/* ------------------------------------ */
+/* 3. Tabla de Personal */
+/* ------------------------------------ */
+
+.employeeListSection {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.listTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+}
+
+.tableContainer {
+    overflow-x: auto;
+}
+
+.employeeTable {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+.employeeTable th {
+    color: var(--text-secondary);
+    padding: 15px 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.employeeTable td {
+    padding: 15px 10px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.employeeName {
+    text-transform: capitalize;
+    font-weight: 500;
+}
+
+.salesValue {
+    font-weight: 600;
+}
+
+.employeeTable tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Estado (Activo / Vacaciones) */
+.statusBadge {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.activo {
+    background-color: var(--status-activo);
+}
+
+.vacaciones {
+    background-color: var(--status-vacaciones);
+}
+
+/* Acciones (Ver | Eliminar) */
+.actions {
+    white-space: nowrap;
+}
+
+.actionButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--action-link);
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+.actionButton:hover {
+    opacity: 0.7;
+}
+
+.deleteButton {
+    color: var(--action-delete);
+}
+
+.actionDivider {
+    color: var(--text-secondary);
+    margin: 0 5px;
+}

@@ -1,0 +1,217 @@
+/* Variables de color */
+:root {
+  --primary-bg: #f5f5f5; /* Fondo gris claro principal */
+  --card-bg: #ffffff;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --border-color: #e0e0e0;
+  
+  /* Colores de Acciones */
+  --view-color: #5540D3; 
+  --edit-color: #5540D3; 
+  --delete-color: #e74c3c; 
+  --add-button-color: #2ecc71; /* Verde para Añadir */
+  --logout-button-color: #ef4444; /* Rojo para Cerrar Sesión */
+}
+
+.dashboardLayout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--primary-bg);
+}
+
+/* ------------------------------------ */
+/* 1. Contenido Principal */
+/* ------------------------------------ */
+
+.mainContent {
+  flex-grow: 1;
+  /* El padding izquierdo compensa el ancho fijo del sidebar (70px) */
+  padding: 0 30px 30px 100px; 
+  overflow-y: auto;
+}
+
+/* ------------------------------------ */
+/* 2. Header Superior y Logout */
+/* ------------------------------------ */
+
+.header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 60px; 
+    background-color: var(--primary-bg);
+    margin-bottom: 20px;
+    padding-top: 20px;
+}
+
+.userControls {
+    display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--card-bg);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.userName { font-weight: 600; color: var(--text-primary); }
+.userRole { font-size: 0.8rem; color: var(--text-secondary); }
+
+.logoutButton {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    background-color: var(--logout-button-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background-color 0.15s;
+}
+.logoutButton:hover {
+    background-color: #c0392b;
+}
+
+/* ------------------------------------ */
+/* 3. Sección de Inventario y Controles */
+/* ------------------------------------ */
+
+.inventorySection {
+  background-color: var(--card-bg);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.sectionTitle {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  gap: 20px;
+}
+
+.searchBox {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  background-color: var(--primary-bg); 
+  border-radius: 8px;
+  padding: 0 15px;
+  max-width: 500px;
+  height: 45px;
+}
+
+.searchIcon {
+  color: var(--text-secondary);
+  margin-right: 10px;
+}
+
+.searchInput {
+  border: none;
+  background: transparent;
+  width: 100%;
+  padding: 10px 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.searchInput:focus {
+  outline: none;
+}
+
+.addButton {
+  background-color: var(--add-button-color);
+  color: var(--card-bg);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.addButton:hover {
+  background-color: #27ae60;
+}
+
+/* ------------------------------------ */
+/* 4. Tabla de Productos */
+/* ------------------------------------ */
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.productTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.productTable th {
+  background-color: var(--primary-bg);
+  color: var(--text-secondary);
+  padding: 15px 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.productTable td {
+  padding: 15px 10px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.productName {
+  font-weight: 500;
+}
+
+.productTable tr:hover {
+  background-color: #f9f9f9;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.actionButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  font-size: 1.1rem;
+  transition: opacity 0.2s;
+}
+
+.actionButton:hover {
+  opacity: 0.8;
+}
+
+.viewIcon { color: var(--view-color); }
+.editIcon { color: var(--edit-color); }
+.deleteIcon { color: var(--delete-color); }
+
+.noResults {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+  font-style: italic;
+}

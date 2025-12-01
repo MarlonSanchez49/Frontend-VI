@@ -6,4 +6,7 @@
   flex-grow: 1;
   padding: 2.5rem; /* 40px */
   background-color: #f0f2f5;
+  margin-left: 70px; /* Ancho del Sidebar */
+  width: calc(100% - 70px); /* Ocupa el resto del ancho */
+  min-height: 100vh;
 }

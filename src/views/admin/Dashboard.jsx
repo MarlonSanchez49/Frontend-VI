@@ -1,101 +1,99 @@
-import React, { useState, useEffect } from 'react';
-import reportsService from '../../services/reportsService';
-import Widget from '../../components/admin/Widget';
-import MovementsChart from '../../components/admin/MovementsChart';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import { FaUserCircle, FaFire, FaSignOutAlt } from 'react-icons/fa';
 import styles from './Dashboard.module.css';
 
+// --- Datos de Simulación para el Resumen de Inventario ---
+const inventorySummary = [
+    { id: 2, name: 'Vodka Oddka', quantity: 17, status: 'Normal' },
+    { id: 5, name: 'Buchanans Master 18 Años', quantity: 7, status: 'Bajo Stock' },
+    { id: 4, name: 'Ron Caldas 700ML', quantity: 73, status: 'Normal' },
+    { id: 1, name: 'Aguardiente Amarillo', quantity: 92, status: 'Normal' },
+];
+
 const Dashboard = () => {
-  const [stats, setStats] = useState({
-    inventoryValue: null,
-    topProducts: [],
-    lowStock: [],
-    movementsByMonth: null,
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const [
-          inventoryValueRes,
-          topProductsRes,
-          lowStockRes,
-          movementsByMonthRes,
-        ] = await Promise.all([
-          reportsService.getInventoryValue(),
-          reportsService.getTopProducts(),
-          reportsService.getLowStock(),
-          reportsService.getMovementsByMonth(),
-        ]);
-
-        setStats({
-          inventoryValue: inventoryValueRes.data.total_value,
-          topProducts: topProductsRes.data.products,
-          lowStock: lowStockRes.data.products,
-          movementsByMonth: movementsByMonthRes.data,
-        });
-
-      } catch (err) {
-        setError('No se pudieron cargar los datos del dashboard. Inténtalo de nuevo más tarde.');
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
+    // Simulamos que no hay datos para mostrar en la gráfica
+    const chartData = []; 
+    
+    const handleLogout = () => {
+        logout();
+        navigate('/login', { replace: true });
     };
 
-    fetchDashboardData();
-  }, []);
+    return (
+        <div className={styles.dashboardContent}>
+            {/* Header con información de usuario y logout */}
+            <header className={styles.header}>
+                <div className={styles.userControls}>
+                    <span className={styles.userName}>{user?.name || 'Usuario'}</span>
+                    <span className={styles.userRole}>{user?.role?.name || 'Rol'}</span>
+                    <button onClick={handleLogout} className={styles.logoutButton}>
+                        <FaSignOutAlt /> Cerrar sesión
+                    </button>
+                </div>
+            </header>
 
-  if (isLoading) {
-    return <div className={styles.loading}>Cargando dashboard...</div>;
-  }
+            <section className={styles.contentGrid}>
+                {/* Gráfico de Barras */}
+                <div className={styles.chartCard}>
+                    <h2 className={styles.chartTitle}>Productos más vendidos (Cantidad)</h2>
+                    <div className={styles.chartWrapper}>
+                        {/* La simulación para "No hay datos de ventas para mostrar." */}
+                        {chartData.length === 0 ? (
+                            <div className={styles.noData}>No hay datos de ventas para mostrar.</div>
+                        ) : (
+                            // ... Lógica del gráfico si hubiera datos ...
+                            null
+                        )}
+                    </div>
+                </div>
 
-  if (error) {
-    return <div className={styles.error}>{error}</div>;
-  }
+                {/* Empleado del Mes */}
+                <div className={styles.employeeCard}>
+                    <h2 className={styles.employeeTitle}>Empleado del Mes</h2>
+                    <div className={styles.employeeAvatar}>
+                        <FaUserCircle />
+                    </div>
+                    <p className={styles.employeeName}>Nombre Empleado</p>
+                    <p className={styles.employeeRole}>Vendedor Estrella</p>
+                    <FaFire className={styles.employeeFireIcon} />
+                </div>
+            </section>
 
-  return (
-    <div>
-      <h1 className={styles.title}>Dashboard</h1>
-      
-      <div className={styles.grid}>
-        <Widget 
-          title="Valor Total del Inventario"
-          value={`$${Number(stats.inventoryValue).toLocaleString('es-MX')}`}
-        />
-        <Widget title="Producto Más Vendido">
-          {stats.topProducts.length > 0 ? (
-            <p>{stats.topProducts[0].name} <span>({stats.topProducts[0].total_moved} mov.)</span></p>
-          ) : (
-            <p>No hay datos</p>
-          )}
-        </Widget>
-        <Widget 
-          title="Productos con Bajo Stock"
-          value={stats.lowStock.length}
-        >
-         {stats.lowStock.length > 0 && <p>({stats.lowStock[0].name} con {stats.lowStock[0].stock} u.)</p>}
-        </Widget>
-        <Widget title="Empleado del Mes">
-          <p>🌟 Juan Pérez</p>
-        </Widget>
-      </div>
-
-      <div className={styles.chartContainer}>
-        <h2 className={styles.chartTitle}>Movimientos de Inventario (Últimos meses)</h2>
-        <div className={styles.chartWrapper}>
-          {stats.movementsByMonth ? (
-            <MovementsChart chartData={stats.movementsByMonth} />
-          ) : (
-            <div className={styles.loading}>
-              <p>No hay datos disponibles para la gráfica.</p>
-            </div>
-          )}
+            {/* Sección de Resumen de Inventario */}
+            <section className={styles.inventorySummary}>
+                <h2 className={styles.summaryTitle}>Resumen de Inventario</h2>
+                <div className={styles.tableContainer}>
+                    <table className={styles.summaryTable}>
+                        <thead>
+                            <tr>
+                                <th>PRODUCTO</th>
+                                <th>CANTIDAD</th>
+                                <th>ESTADO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {inventorySummary.map((item) => (
+                                <tr key={item.id}>
+                                    <td>{item.name}</td>
+                                    <td>{item.quantity}</td>
+                                    <td>
+                                        <span className={`${styles.statusBadge} ${styles[item.status.toLowerCase().replace(' ', '')]}`}>
+                                            {item.status}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
-export default Dashboard;
+export default Dashboard; 
