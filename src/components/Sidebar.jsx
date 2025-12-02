@@ -1,7 +1,6 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import styles from './Sidebar.module.css';
-import { useAuth } from '../hooks/useAuth';
 
 import logo from '../../public/logo.png'; // Asegúrate de tener logo.png en src/assets/
 // Importar los íconos de la barra lateral
@@ -23,14 +22,6 @@ const adminLinks = [
 ];
 
 const Sidebar = () => {
-  const auth = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    auth.logout();
-    navigate('/login', { replace: true });
-  };
-
   return (
     <div className={styles.sidebar}>
       

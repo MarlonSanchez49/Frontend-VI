@@ -3,16 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import styles from './MainPage.module.css';
 
 const MainPage = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  const handleLoginRedirect = () => {
-    // La función para navegar al login está correcta.
-    navigate('/login');
-  };
+  const handleLoginRedirect = () => {
+    // La función para navegar al login está correcta.
+    navigate('/login');
+  };
 
-  return (
-    <div className={styles.fullScreenContainer}>
-      
+  return (
+    <div className={styles.fullScreenContainer}>
+      
       {/* 1. Logo y Título Superior */}
       <header className={styles.header}>
         {/* Usamos un div para simular el ícono 'V' del logo */}
@@ -21,24 +21,24 @@ const MainPage = () => {
       </header>
 
       {/* 2. Columna de Contenido Central */}
-      <div className={styles.mainContent}>
-        <div className={styles.contentWrapper}>
-          <h1 className={styles.mainTitle}>Gestor de<br />Inventario</h1>
-          
+      <div className={styles.mainContent}>
+        <div className={styles.contentWrapper}>
+          <h1 className={styles.mainTitle}>Gestor de<br />Inventario</h1>
+          
           {/* El botón de la captura dice "ADMINISTRAR" */}
-          <button 
+          <button 
             onClick={handleLoginRedirect} 
             className={styles.adminButton}
           >
-            ADMINISTRAR
-          </button>
-        </div>
-      </div>
+            ADMINISTRAR
+          </button>
+        </div>
+      </div>
 
       {/* NOTA: El fondo de esferas y formas se maneja completamente en el CSS. */}
 
-    </div>
-  );
+    </div>
+  );
 };
 
 export default MainPage;

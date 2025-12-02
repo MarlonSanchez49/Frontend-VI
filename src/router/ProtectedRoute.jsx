@@ -3,28 +3,31 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 const ProtectedRoute = ({ allowedRoles }) => {
-  const { isAuthenticated, user } = useAuth();
-  const userRole = user?.role?.name || user?.role || '';
+  const { isAuthenticated, user, loading } = useAuth(); // Incluir 'loading'
+
+  // 0. Si está cargando, mostrar un indicador
+  if (loading) {
+    return <div>Loading...</div>; // O un spinner/componente de carga más sofisticado
+  }
 
   // 1. Verificar si está autenticado
   if (!isAuthenticated) {
-    // Redirigir a login, guardando la ubicación a la que intentaba acceder
     return <Navigate to="/login" replace />;
   }
 
-  // 2. Verificar si el rol está permitido (si se especificaron roles)
+  // 2. Verificar si el rol está permitido (usando role_id)
   if (allowedRoles) {
-    const userRole = user?.role?.name || user?.role || '';
-    // Comparamos en minúsculas para ser más robustos (ej: 'Admin' vs 'admin')
-    const hasAccess = allowedRoles.some(allowed => allowed.toLowerCase() === userRole.toLowerCase());
+    const userRoleId = user?.role_id;
+    const hasAccess = allowedRoles.includes(userRoleId);
 
     if (!hasAccess) {
-      // Si el usuario no tiene el rol permitido, lo redirigimos a la raíz.
+      // Si no tiene acceso, redirige a la página principal.
+      // Podrías redirigir a una página de 'no autorizado' si lo prefieres.
       return <Navigate to="/" replace />;
     }
   }
 
-  // 3. Si todo está en orden, renderizar el contenido de la ruta
+  // 3. Si todo está en orden, renderizar el contenido
   return <Outlet />;
 };
 

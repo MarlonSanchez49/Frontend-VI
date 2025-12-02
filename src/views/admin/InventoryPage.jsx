@@ -96,7 +96,7 @@ const ConfirmationDialog = ({ message, onConfirm, onCancel }) => (
     </div>
 );
 
-const Inventory = () => {
+const InventoryPage = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -310,4 +310,4 @@ const Inventory = () => {
   );
 };
 
-export default Inventory;
+export default InventoryPage;

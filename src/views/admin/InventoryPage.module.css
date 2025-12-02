@@ -189,29 +189,535 @@
 
 .actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  align-items: center;
 }
 
-.actionButton {
+.viewButton, .editButton, .deleteButton {
+  padding: 8px;
   background: none;
   border: none;
+  border-radius: 50%;
   cursor: pointer;
-  padding: 5px;
-  font-size: 1.1rem;
-  transition: opacity 0.2s;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  transition: all 0.2s ease-in-out;
 }
 
-.actionButton:hover {
-  opacity: 0.8;
+.viewButton:hover, .editButton:hover, .deleteButton:hover {
+  transform: scale(1.15);
+  color: white;
 }
 
-.viewIcon { color: var(--view-color); }
-.editIcon { color: var(--edit-color); }
-.deleteIcon { color: var(--delete-color); }
+.viewButton { color: var(--view-color); }
+.viewButton:hover { background-color: var(--view-color); }
+.editButton { color: var(--edit-color); }
+.editButton:hover { background-color: var(--edit-color); }
+.deleteButton { color: var(--delete-color); }
+.deleteButton:hover { background-color: var(--delete-color); }
 
 .noResults {
   text-align: center;
   padding: 40px;
   color: var(--text-secondary);
   font-style: italic;
+}
+
+/* ------------------------------------ */
+/* 5. Estilos para el Modal de Producto */
+/* ------------------------------------ */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    color: var(--text-primary);
+    animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modalContent h2 {
+    color: var(--text-primary);
+    margin-top: 0;
+    font-size: 1.75rem;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modalCloseButton {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #999;
+    transition: color 0.2s, transform 0.2s;
+}
+.modalCloseButton:hover {
+    color: #333;
+    transform: rotate(90deg);
+}
+
+.modalBody {
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.modalField {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.modalField label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.modalField strong {
+    text-align: right;
+    font-weight: 500;
+}
+
+.modalField input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #f9fafb;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.modalField input:focus {
+    outline: none;
+    border-color: var(--view-color);
+    box-shadow: 0 0 0 3px rgba(85, 64, 211, 0.2);
+}
+
+.modalFooter {
+    margin-top: 25px;
+    text-align: right;
+}
+
+.saveButton {
+    background-color: var(--view-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+.saveButton:hover {
+    background-color: #4330a1;
+    transform: translateY(-2px);
+}
+
+/* --- Estilos para el Diálogo de Confirmación --- */
+.confirmDialog { text-align: center; }
+
+.confirmButtons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.confirmButtonYes, .confirmButtonNo {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.confirmButtonYes:hover, .confirmButtonNo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.confirmButtonYes { background-color: var(--delete-color); }
+.confirmButtonNo { background-color: var(--text-secondary); }
+
+/* --- Notificación de Éxito --- */
+.successNotification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #2ecc71;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 2000;
+    animation: slideIn 0.3s ease-out, fadeOut 0.3s 2.7s ease-in forwards;
+}
+
+/* --- Keyframes para Animaciones --- */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* ------------------------------------ */
+/* 5. Estilos para el Modal de Producto */
+/* ------------------------------------ */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    color: var(--text-primary);
+    animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modalContent h2 {
+    color: var(--text-primary);
+    margin-top: 0;
+    font-size: 1.75rem;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modalCloseButton {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #999;
+    transition: color 0.2s, transform 0.2s;
+}
+.modalCloseButton:hover {
+    color: #333;
+    transform: rotate(90deg);
+}
+
+.modalBody {
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.modalField {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    align-items: center;
+    gap: 1rem;
+}
+
+.modalField input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.modalField input:focus {
+    outline: none;
+    border-color: var(--view-color);
+    box-shadow: 0 0 0 3px rgba(85, 64, 211, 0.2);
+}
+
+.modalFooter {
+    margin-top: 25px;
+    text-align: right;
+}
+
+.saveButton {
+    background-color: var(--view-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+.saveButton:hover {
+    background-color: #4330a1;
+    transform: translateY(-2px);
+}
+
+.modalField label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.modalField strong {
+    font-weight: 500;
+}
+
+.modalField input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.modalField input:focus {
+    outline: none;
+    border-color: var(--view-color);
+    box-shadow: 0 0 0 3px rgba(85, 64, 211, 0.2);
+}
+
+.modalFooter {
+    margin-top: 25px;
+    text-align: right;
+}
+
+.saveButton {
+    background-color: var(--view-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+.saveButton:hover {
+    background-color: #4330a1;
+    transform: translateY(-2px);
+}
+
+/* --- Estilos para el Diálogo de Confirmación --- */
+.confirmDialog { text-align: center; }
+
+.confirmButtons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.confirmButtonYes, .confirmButtonNo {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.confirmButtonYes:hover, .confirmButtonNo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.confirmButtonYes { background-color: var(--delete-color); }
+.confirmButtonNo { background-color: var(--text-secondary); }
+
+/* --- Notificación de Éxito --- */
+.successNotification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #2ecc71;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 2000;
+    animation: slideIn 0.3s ease-out, fadeOut 0.3s 2.7s ease-in forwards;
+}
+
+/* --- Keyframes para Animaciones --- */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* ------------------------------------ */
+/* 5. Estilos para el Modal de Producto */
+/* ------------------------------------ */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: var(--text-primary);
+    animation: scaleIn 0.2s ease-out;
+}
+
+.modalContent h2 {
+    color: var(--text-primary);
+    margin-top: 0;
+    font-size: 1.75rem;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modalCloseButton {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s;
+}
+.modalCloseButton:hover {
+    color: #333;
+}
+
+.modalBody {
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.modalField {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    align-items: center;
+    gap: 1rem;
+}
+
+.modalField label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.modalField input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.modalFooter {
+    margin-top: 25px;
+    text-align: right;
+}
+
+.saveButton {
+    background-color: var(--view-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.saveButton:hover {
+    background-color: #4330a1;
+}
+
+/* --- Estilos para el Diálogo de Confirmación --- */
+.confirmDialog { text-align: center; }
+
+.confirmButtons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.confirmButtonYes, .confirmButtonNo {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.confirmButtonYes:hover, .confirmButtonNo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.confirmButtonYes { background-color: var(--delete-color); }
+.confirmButtonNo { background-color: var(--text-secondary); }
+
+/* --- Keyframes para Animaciones --- */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }
