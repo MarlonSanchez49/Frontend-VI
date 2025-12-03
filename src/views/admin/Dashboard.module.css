@@ -202,3 +202,157 @@
 }
 .normal { background-color: var(--status-normal); }
 .bajostock { background-color: var(--status-low); }
+
+/* ------------------------------------ */
+/* Gestión de Personal */
+/* ------------------------------------ */
+
+.staffSection {
+    margin-top: 2rem;
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    grid-column: 1 / -1; /* Ocupa todo el ancho en el grid */
+}
+
+.actionButtons {
+    display: flex;
+    gap: 10px;
+}
+
+.viewButton, .deleteButton {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+}
+
+.viewButton { background-color: #007bff; }
+.viewButton:hover { background-color: #0056b3; }
+
+.deleteButton { background-color: var(--logout-button-color); }
+.deleteButton:hover { background-color: #c82333; }
+
+/* --- Estilos para el Badge de Estado de Personal --- */
+.statusBadge.activo { background-color: var(--status-normal); }
+.statusBadge.descansando { background-color: var(--status-low); color: var(--text-primary); }
+
+/* ------------------------------------ */
+/* Estilos para el Modal */
+/* ------------------------------------ */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    animation: scaleIn 0.2s ease-out;
+}
+
+.modalCloseButton {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s;
+}
+.modalCloseButton:hover {
+    color: #333;
+}
+
+.modalContent h2 {
+    font-size: 1.75rem;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    margin-top: 0;
+}
+
+.modalBody {
+    padding-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.modalInfoRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.modalField { gap: 1rem; }
+.statusSelect {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    font-size: 1rem;
+}
+
+/* --- Estilos para el Diálogo de Confirmación --- */
+.confirmDialog { text-align: center; }
+
+.confirmButtons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.confirmButtonYes, .confirmButtonNo {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.confirmButtonYes:hover, .confirmButtonNo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.confirmButtonYes { background-color: var(--logout-button-color); }
+.confirmButtonNo { background-color: var(--text-secondary); }
+
+/* --- Keyframes para Animaciones --- */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { 
+        opacity: 0;
+        transform: scale(0.95); 
+    }
+    to { 
+        opacity: 1;
+        transform: scale(1); 
+    }
+}

@@ -21,6 +21,7 @@ const recentTransactions = [
 ];
 
 // Componente de Tarjeta de Estadística
+// eslint-disable-next-line no-unused-vars
 const StatCard = ({ label, value, icon: Icon, color }) => (
     <div className={`${styles.statCard} ${styles[color]}`}>
         <Icon className={styles.statIcon} />
