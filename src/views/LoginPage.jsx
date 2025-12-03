@@ -17,6 +17,7 @@ const LoginPage = () => {
     setError(null);
     setIsLoading(true);
 
+<<<<<<< HEAD
     // ---- INICIO: Lógica para login de prueba ----
     // NOTA: La imagen tiene credenciales diferentes (johnd/m38mF$ y mor_2314/03fK$)
     // Las dejaremos para que se visualice la sección, pero no las conectaremos al login de prueba
@@ -39,6 +40,34 @@ const LoginPage = () => {
       setIsLoading(false);
     }
   };
+=======
+         // ---- INICIO: Lógica para login de prueba ----
+        // NOTA: La imagen tiene credenciales diferentes (johnd/m38mF$ y mor_2314/03fK$)
+        // Las dejaremos para que se visualice la sección, pero no las conectaremos al login de prueba
+        if (email === 'admin@test.com' && password === 'password') {
+          auth.offlineLogin();
+          navigate('/admin/dashboard', { replace: true });
+          setIsLoading(false);
+          return; 
+        }
+        if (email === 'user@test.com' && password === 'password') {
+          auth.offlineLogin();
+          navigate('/pos', { replace: true });
+          setIsLoading(false);
+          return;
+        }
+        // ---- FIN: Lógica para login de prueba ----
+    // Lógica original para llamar a la API
+    try {
+      const user = await auth.login({ email, password });
+      
+      // Se verifica el nombre del rol dentro del objeto 'role'
+      if (user?.role?.name.toLowerCase() === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        navigate('/pos', { replace: true });
+      }
+>>>>>>> f699e99f8d7ce09d77437898a6149d688638629a
 
   return (
     <div className={styles.fullScreenContainer}>
