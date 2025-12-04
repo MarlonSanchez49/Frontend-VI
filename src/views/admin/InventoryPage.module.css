@@ -7,6 +7,7 @@
   --border-color: #e0e0e0;
   
   /* Colores de Acciones */
+  --sidebar-bg: #1e3a8a;
   --view-color: #5540D3; 
   --edit-color: #5540D3; 
   --delete-color: #e74c3c; 
@@ -731,4 +732,67 @@
 @keyframes scaleIn {
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
+}
+
+/* --- Estilos de Paginación --- */
+.paginationControls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem; /* Espacio arriba de los controles */
+  padding: 0.5rem;
+}
+
+.paginationButton {
+  background-color: var(--sidebar-bg);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.paginationButton:disabled {
+  background-color: var(--color-gray-300);
+  cursor: not-allowed;
+}
+
+.paginationInfo {
+  font-weight: 500;
+  color: var(--color-on-surface-secondary);
+}
+
+.pageNumbers {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pageNumberButton {
+  background-color: var(--color-background);
+  color: var(--sidebar-bg);
+  border: 1px solid var(--color-gray-300);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pageNumberButton:hover {
+  background-color: var(--sidebar-bg);
+  color: white;
+}
+
+.activePage {
+  background-color: var(--sidebar-bg);
+  color: white;
+  border-color: var(--sidebar-bg);
 }

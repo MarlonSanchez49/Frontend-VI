@@ -114,6 +114,11 @@ const InventoryPage = () => {
   const [productToDelete, setProductToDelete] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  // --- Estados para la Paginación ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const PRODUCTS_PER_PAGE = 10;
+
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
@@ -156,6 +161,12 @@ const InventoryPage = () => {
     fetchProducts();
     fetchCategories(); // 3. Llamar a la función
   }, []);
+
+  // Efecto para resetear la página al buscar
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
 
   // --- Funcionalidades CRUD ---
 
@@ -250,6 +261,12 @@ const InventoryPage = () => {
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // --- Lógica de Paginación ---
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  const endIndex = startIndex + PRODUCTS_PER_PAGE;
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
   return (
     <div className={styles.dashboardLayout}>
       
@@ -314,7 +331,7 @@ const InventoryPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredProducts.map((product) => (
+                {paginatedProducts.map((product) => (
                   <tr key={product.id}>
                     <td className={styles.productName}>{product.name}</td>
                     <td>{product.description}</td>
@@ -340,6 +357,40 @@ const InventoryPage = () => {
             </table>
           </div>
           
+          {/* --- Controles de Paginación --- */}
+          <div></div>
+          {totalPages > 1 && (
+            <div className={styles.paginationControls}>
+              <button
+                onClick={() => setCurrentPage((prev) => prev - 1)}
+                disabled={currentPage === 1}
+                className={styles.paginationButton}
+              >
+                Anterior
+              </button>
+              <div className={styles.pageNumbers}>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (pageNumber) => (
+                    <button
+                      key={pageNumber}
+                      onClick={() => setCurrentPage(pageNumber)}
+                      className={`${styles.pageNumberButton} ${currentPage === pageNumber ? styles.activePage : ""}`}
+                    >
+                      {pageNumber}
+                    </button>
+                  )
+                )}
+              </div>
+              <button
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+                disabled={currentPage >= totalPages}
+                className={styles.paginationButton}
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
+
           {filteredProducts.length === 0 && (
             <p className={styles.noResults}>No se encontraron productos.</p>
           )}

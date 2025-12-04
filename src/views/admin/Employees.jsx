@@ -122,6 +122,11 @@ const EmployeesPage = () => {
   const [employeeToDelete, setEmployeeToDelete] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [validationErrors, setValidationErrors] = useState(null);
+
+  // --- Estados para la Paginación ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const EMPLOYEES_PER_PAGE = 5;
+
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
@@ -255,6 +260,12 @@ const EmployeesPage = () => {
     navigate('/login', { replace: true });
   };
 
+  // --- Lógica de Paginación ---
+  const totalPages = Math.ceil(employees.length / EMPLOYEES_PER_PAGE);
+  const startIndex = (currentPage - 1) * EMPLOYEES_PER_PAGE;
+  const endIndex = startIndex + EMPLOYEES_PER_PAGE;
+  const paginatedEmployees = employees.slice(startIndex, endIndex);
+
   return (
     <div className={styles.dashboardLayout}>
       
@@ -314,7 +325,7 @@ const EmployeesPage = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {employees.map((emp) => (
+                        {paginatedEmployees.map((emp) => (
                             <tr key={emp.id}>
                                 <td className={styles.employeeName}>{emp.name}</td>
                                 <td>{emp.position}</td>
@@ -340,6 +351,39 @@ const EmployeesPage = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* --- Controles de Paginación --- */}
+            {totalPages > 1 && (
+              <div className={styles.paginationControls}>
+                <button
+                  onClick={() => setCurrentPage((prev) => prev - 1)}
+                  disabled={currentPage === 1}
+                  className={styles.paginationButton}
+                >
+                  Anterior
+                </button>
+                <div className={styles.pageNumbers}>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (pageNumber) => (
+                      <button
+                        key={pageNumber}
+                        onClick={() => setCurrentPage(pageNumber)}
+                        className={`${styles.pageNumberButton} ${currentPage === pageNumber ? styles.activePage : ""}`}
+                      >
+                        {pageNumber}
+                      </button>
+                    )
+                  )}
+                </div>
+                <button
+                  onClick={() => setCurrentPage((prev) => prev + 1)}
+                  disabled={currentPage >= totalPages}
+                  className={styles.paginationButton}
+                >
+                  Siguiente
+                </button>
+              </div>
+            )}
         </section>
 
         {/* Renderizado condicional del Modal y Diálogo de Confirmación */}

@@ -126,6 +126,14 @@ const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [staffToDelete, setStaffToDelete] = useState(null);
 
+    // --- Estados para la paginación del inventario ---
+    const [inventoryCurrentPage, setInventoryCurrentPage] = useState(1);
+    const INVENTORY_ITEMS_PER_PAGE = 10;
+
+    // --- Estados para la paginación de personal ---
+    const [staffCurrentPage, setStaffCurrentPage] = useState(1);
+    const STAFF_PER_PAGE = 5;
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -139,11 +147,12 @@ const Dashboard = () => {
                 // Cargar productos para el resumen
                 const productsResponse = await productService.getProducts();
                 const products = getDataFromResponse(productsResponse);
-                setInventorySummaryData(products.slice(0, 5));
+                setInventorySummaryData(products);
                 
-                // Cargar productos con bajo stock
-                const lowStockResponse = await reportsService.getLowStock();
-                setLowStockCount(getDataFromResponse(lowStockResponse).length);
+                // Calcular productos con bajo stock desde la lista de productos ya obtenida
+                const LOW_STOCK_THRESHOLD = 10; // Puedes ajustar este valor
+                const lowStockProducts = products.filter(p => p.stock < LOW_STOCK_THRESHOLD);
+                setLowStockCount(lowStockProducts.length);
 
             } catch (error) {
                 console.error("Error al cargar los datos del dashboard:", error);
@@ -303,6 +312,18 @@ const Dashboard = () => {
         maintainAspectRatio: false,
     };
 
+    // --- Lógica de paginación para el inventario ---
+    const inventoryTotalPages = Math.ceil(inventorySummaryData.length / INVENTORY_ITEMS_PER_PAGE);
+    const inventoryStartIndex = (inventoryCurrentPage - 1) * INVENTORY_ITEMS_PER_PAGE;
+    const inventoryEndIndex = inventoryStartIndex + INVENTORY_ITEMS_PER_PAGE;
+    const paginatedInventory = inventorySummaryData.slice(inventoryStartIndex, inventoryEndIndex);
+
+    // --- Lógica de paginación para el personal ---
+    const staffTotalPages = Math.ceil(staffData.length / STAFF_PER_PAGE);
+    const staffStartIndex = (staffCurrentPage - 1) * STAFF_PER_PAGE;
+    const staffEndIndex = staffStartIndex + STAFF_PER_PAGE;
+    const paginatedStaff = staffData.slice(staffStartIndex, staffEndIndex);
+
 
     return (
         <div className={styles.dashboardContent}>
@@ -368,7 +389,40 @@ const Dashboard = () => {
             </section>
 
             {/* Sección de Gestión de Personal */}
-            <StaffList staff={staffData} onView={handleViewStaff} onDelete={handleDeleteClick} />
+            <StaffList staff={paginatedStaff} onView={handleViewStaff} onDelete={handleDeleteClick} />
+
+            {/* Controles de Paginación para el Personal */}
+            {staffTotalPages > 1 && (
+                <div className={styles.paginationControls}>
+                    <button
+                        onClick={() => setStaffCurrentPage((prev) => prev - 1)}
+                        disabled={staffCurrentPage === 1}
+                        className={styles.paginationButton}
+                    >
+                        Anterior
+                    </button>
+                    <div className={styles.pageNumbers}>
+                        {Array.from({ length: staffTotalPages }, (_, i) => i + 1).map(
+                            (pageNumber) => (
+                            <button
+                                key={pageNumber}
+                                onClick={() => setStaffCurrentPage(pageNumber)}
+                                className={`${styles.pageNumberButton} ${staffCurrentPage === pageNumber ? styles.activePage : ""}`}
+                            >
+                                {pageNumber}
+                            </button>
+                            )
+                        )}
+                    </div>
+                    <button
+                        onClick={() => setStaffCurrentPage((prev) => prev + 1)}
+                        disabled={staffCurrentPage >= staffTotalPages}
+                        className={styles.paginationButton}
+                    >
+                        Siguiente
+                    </button>
+                </div>
+            )}
 
             {/* Sección de Resumen de Inventario */}
             <section className={styles.inventorySummary}>
@@ -383,7 +437,7 @@ const Dashboard = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {inventorySummaryData.map((item) => (
+                            {paginatedInventory.map((item) => (
                                 <tr key={item.id}>
                                     <td>{item.name}</td>
                                     <td>{item.stock}</td>
@@ -396,6 +450,38 @@ const Dashboard = () => {
                             ))}
                         </tbody>
                     </table>
+                    {/* Controles de Paginación para el Inventario (Movidos aquí) */}
+                    {inventoryTotalPages > 1 && (
+                        <div className={styles.paginationControls}>
+                            <button
+                                onClick={() => setInventoryCurrentPage((prev) => prev - 1)}
+                                disabled={inventoryCurrentPage === 1}
+                                className={styles.paginationButton}
+                            >
+                                Anterior
+                            </button>
+                            <div className={styles.pageNumbers}>
+                                {Array.from({ length: inventoryTotalPages }, (_, i) => i + 1).map(
+                                    (pageNumber) => (
+                                    <button
+                                        key={pageNumber}
+                                        onClick={() => setInventoryCurrentPage(pageNumber)}
+                                        className={`${styles.pageNumberButton} ${inventoryCurrentPage === pageNumber ? styles.activePage : ""}`}
+                                    >
+                                        {pageNumber}
+                                    </button>
+                                    )
+                                )}
+                            </div>
+                            <button
+                                onClick={() => setInventoryCurrentPage((prev) => prev + 1)}
+                                disabled={inventoryCurrentPage >= inventoryTotalPages}
+                                className={styles.paginationButton}
+                            >
+                                Siguiente
+                            </button>
+                        </div>
+                    )}
                 </div>
             </section>
             </>

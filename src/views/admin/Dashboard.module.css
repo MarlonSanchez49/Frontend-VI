@@ -438,3 +438,59 @@
     font-size: 0.9rem;
 }
 
+/* --- Estilos de Paginación --- */
+.paginationControls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem; /* Espacio arriba de los controles */
+  padding: 0.5rem;
+}
+
+.paginationButton {
+  background-color: var(--sidebar-active); /* Usando un color del tema actual */
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.paginationButton:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.paginationButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pageNumbers {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pageNumberButton {
+  background-color: var(--card-bg);
+  color: var(--sidebar-active);
+  border: 1px solid var(--border-color);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pageNumberButton:hover {
+  background-color: #eef2ff; /* Un color de hover ligero */
+}
+
+.activePage {
+  background-color: var(--sidebar-active);
+  color: white;
+  border-color: var(--sidebar-active);
+}
