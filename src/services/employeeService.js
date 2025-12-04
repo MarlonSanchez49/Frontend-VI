@@ -29,6 +29,15 @@ const employeeService = {
     console.log(`Actualizando empleado ${id}:`, employeeData); // Para depuración
     return apiClient.put(`/employees/${id}`, employeeData);
   },
+
+  /**
+   * Elimina un empleado.
+   * @param {number} id - El ID del empleado a eliminar.
+   * @returns {Promise<any>}
+   */
+  deleteEmployee: (id) => {
+    return apiClient.delete(`/employees/${id}`);
+  },
 };
 
 export default employeeService;

@@ -145,6 +145,59 @@
     color: #f59e0b;
 }
 
+/* --- Estilos para KPI Card (Productos Bajo Stock) --- */
+.kpiCard {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.kpiCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+}
+
+.kpiIcon {
+    font-size: 3rem;
+    padding: 1rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lowStockCard .kpiIcon {
+    background-color: #fff1f2;
+    color: #ef4444;
+}
+
+.kpiContent {
+    display: flex;
+    flex-direction: column;
+}
+
+.kpiValue {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.kpiTitle {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+
 /* ------------------------------------ */
 /* Resumen de Inventario */
 /* ------------------------------------ */
@@ -198,10 +251,12 @@
     border-radius: 1rem;
     font-size: 0.8rem;
     font-weight: 600;
-    color: white;
+    color: black;
 }
 .normal { background-color: var(--status-normal); }
 .bajostock { background-color: var(--status-low); }
+.disponible { background-color: var(--status-normal); }
+.nodisponible { background-color: var(--logout-button-color); color: white; }
 
 /* ------------------------------------ */
 /* Gestión de Personal */
@@ -240,6 +295,7 @@
 /* --- Estilos para el Badge de Estado de Personal --- */
 .statusBadge.activo { background-color: var(--status-normal); }
 .statusBadge.descansando { background-color: var(--status-low); color: var(--text-primary); }
+.statusBadge.inactivo { background-color: var(--text-secondary); color: white; }
 
 /* ------------------------------------ */
 /* Estilos para el Modal */
@@ -356,3 +412,29 @@
         transform: scale(1); 
     }
 }
+
+/* Nuevos estilos para el picker de mes/año */
+.chartHeaderWithControls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+}
+
+.datePickerControls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.monthYearSelect {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+

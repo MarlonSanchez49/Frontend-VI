@@ -6,7 +6,7 @@
   --text-secondary: #6b7280;
   --border-color: #e0e0e0;
   
-  /* Colores de Stats */
+  /* Colores de Stats (mantener por si se usan en otro lugar o para futuras adiciones) */
   --stat-blue: #3b82f6;
   --stat-green: #10b981;
   --stat-red: #ef4444;
@@ -20,7 +20,7 @@
 }
 
 .titleGroup {
-    /* Agrupamos título y subtítulo */
+    flex-grow: 1; /* Ocupa el espacio disponible */
 }
 
 .pageTitle {
@@ -35,51 +35,7 @@
     color: var(--text-secondary);
 }
 
-.statsGrid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-}
-@media (min-width: 768px) {
-    .statsGrid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-
-.statCard {
-    background-color: var(--card-bg);
-    color: white;
-    padding: 1.25rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-/* Colores de las tarjetas */
-.blue { background-color: var(--stat-blue); }
-.green { background-color: var(--stat-green); }
-.red { background-color: var(--stat-red); }
-.orange { background-color: var(--stat-orange); }
-
-.statIcon {
-    font-size: 2.5rem;
-    opacity: 0.8;
-}
-
-.statLabel {
-    font-size: 0.8rem;
-    font-weight: 500;
-    opacity: 0.9;
-}
-
-.statValue {
-    font-size: 1.5rem;
-    font-weight: 700;
-    line-height: 1.2;
-}
-
+/* Transacciones y Filtro de Fecha */
 .transactionsSection {
     background-color: var(--card-bg);
     padding: 1.5rem;
@@ -89,30 +45,62 @@
 
 .sectionHeader {
     display: flex;
+    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end; /* Alinea los items al final (fecha abajo del título si hay wrap) */
     margin-bottom: 1rem;
+    gap: 1rem; /* Espacio entre el título y el filtro */
 }
 
 .listTitle {
     font-size: 1.2rem;
     font-weight: 600;
     color: var(--text-primary);
+    margin-bottom: 0; /* Asegura que no haya margen extra con el filtro */
 }
 
-.reportButton {
-    background-color: var(--stat-blue);
-    color: white;
-    border: none;
-    padding: 10px 15px;
+.dateFilterContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dateFilterLabel {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    white-space: nowrap; /* Evita que el label se rompa en varias líneas */
+}
+
+.dateFilterInput {
+    background-color: #f0f0f0;
+    border: 1px solid var(--border-color);
     border-radius: 5px;
-    font-weight: 600;
+    padding: 5px 8px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: border-color 0.2s;
 }
 
-.reportButton:hover {
-    background-color: #2563eb;
+.dateFilterInput:focus {
+    outline: none;
+    border-color: var(--stat-blue);
+}
+
+/* Estilo para el icono del calendario en navegadores webkit */
+.dateFilterInput::-webkit-calendar-picker-indicator {
+    filter: none; /* Resetear el filtro invertido, ya que el input es oscuro */
+}
+
+.totalDailyRevenue {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.totalDailyRevenue strong {
+    font-weight: 700;
 }
 
 .tableContainer {
@@ -125,7 +113,7 @@
 }
 
 .transactionsTable th, .transactionsTable td {
-    padding: 12px 15px;
+    padding: 14px 20px; /* Ajustado el espaciado */
     text-align: left;
     border-bottom: 1px solid var(--border-color);
 }
@@ -150,4 +138,57 @@
 .expense {
     color: var(--stat-red);
     font-weight: 600;
+}
+
+/* Layout and Header Styles */
+.dashboardLayout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--primary-bg);
+}
+
+.mainContent {
+  flex-grow: 1;
+  padding: 0 30px 30px 100px; 
+  overflow-y: auto;
+}
+
+.header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    margin-bottom: 20px;
+}
+
+.userControls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--card-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.userName { font-weight: 600; color: var(--text-primary); }
+.userRole { font-size: 0.8rem; color: var(--text-secondary); }
+
+.logoutButton {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    background-color: #ef4444; /* Direct color for simplicity */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background-color 0.15s;
+}
+.logoutButton:hover {
+    background-color: #c0392b;
 }

@@ -26,33 +26,38 @@
 
 .mainContent {
   flex-grow: 1;
-  /* El padding izquierdo compensa el ancho fijo del sidebar (70px) */
   padding: 0 30px 30px 100px; 
   overflow-y: auto;
 }
 
-/* ------------------------------------ */
-/* 2. Header Superior y Logout */
-/* ------------------------------------ */
-
 .header {
     display: flex;
-    justify-content: flex-end;
+    flex-wrap: wrap;
+    justify-content: space-between;
     align-items: center;
-    height: 60px; 
-    background-color: var(--primary-bg);
-    margin-bottom: 20px;
     padding-top: 20px;
+    margin-bottom: 20px;
+}
+
+.titleGroup {
+    flex-grow: 1;
+}
+
+.pageTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 5px;
 }
 
 .userControls {
     display: flex;
-  align-items: center;
-  gap: 1rem;
-  background-color: var(--card-bg);
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--card-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .userName { font-weight: 600; color: var(--text-primary); }
@@ -87,13 +92,6 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-.sectionTitle {
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 20px;
-}
-
 .controls {
   display: flex;
   justify-content: space-between;
@@ -109,7 +107,6 @@
   background-color: var(--primary-bg); 
   border-radius: 8px;
   padding: 0 15px;
-  max-width: 500px;
   height: 45px;
 }
 
@@ -712,6 +709,20 @@
 .confirmButtonNo { background-color: var(--text-secondary); }
 
 /* --- Keyframes para Animaciones --- */
+/* --- Notificación de Error --- */
+.errorNotification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #e74c3c; /* Color rojo para errores */
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 2000;
+    animation: slideIn 0.3s ease-out, fadeOut 0.3s 4.7s ease-in forwards; /* Duración más larga */
+}
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }

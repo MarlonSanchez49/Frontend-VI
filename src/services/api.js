@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Asume que la API de Laravel está corriendo en localhost:8000
-const API_URL = 'http://localhost:8000/api';
+// Asume que la API de Laravel está corriendo en 127.0.0.1:8000
+const API_URL = 'http://127.0.0.1:8000/api';
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -18,6 +18,7 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
+    console.log('Enviando petición con la siguiente configuración:', config); // DEBUG
     return config;
   },
   (error) => {

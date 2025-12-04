@@ -1,22 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../../components/Sidebar'; // Asegúrate que la ruta sea correcta
+import Sidebar from '../../components/Sidebar';
 import { useAuth } from '../../hooks/useAuth';
-import productService from '../../services/productService'; // Importar el servicio
-import { FaEye, FaEdit, FaTrash, FaPlus, FaSearch, FaSignOutAlt, FaTimes } from 'react-icons/fa';
-import styles from './InventoryPage.module.css'; // Asumo que este es el archivo de estilos correcto
+import productService from '../../services/productService';
+import categoryService from '../../services/categoryService'; // 1. Importar categoryService
+import { FaEye, FaEdit, FaTrash, FaPlus, FaSearch, FaSignOutAlt } from 'react-icons/fa';
+import styles from './InventoryPage.module.css';
 
 // --- Componente Modal para Detalles/Edición del Producto ---
-const ProductModal = ({ product, onClose, onSave, mode }) => {
-    // Usamos un estado local para los campos del formulario para no mutar el estado principal directamente
+const ProductModal = ({ product, onClose, onSave, mode, categories }) => { // 4. Recibir categories
     const [formData, setFormData] = useState({
         name: product?.name || '',
         description: product?.description || '',
         price: product?.price || '',
         stock: product?.stock || '',
         status: product?.status || 'available',
-        category_id: product?.category_id || 1,
+        category_id: product?.category_id || (categories.length > 0 ? categories[0].id : ''),
     });
+
+    useEffect(() => {
+        if (categories.length > 0 && !formData.category_id) {
+            setFormData(prev => ({ ...prev, category_id: categories[0].id }));
+        }
+    }, [categories, formData.category_id]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -49,10 +55,13 @@ const ProductModal = ({ product, onClose, onSave, mode }) => {
                     </div>
                     <div className={styles.modalField}>
                         <label>Categoría:</label>
+                        {/* 4. Renderizar options dinámicamente */}
                         <select name="category_id" value={formData.category_id} onChange={handleChange} className={styles.modalInput} disabled={isViewMode}>
-                            <option value={1}>Licores</option>
-                            <option value={2}>Cervezas</option>
-                            <option value={3}>Otros</option>
+                            {categories.map(category => (
+                                <option key={category.id} value={category.id}>
+                                    {category.name}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <div className={styles.modalField}>
@@ -98,36 +107,54 @@ const ConfirmationDialog = ({ message, onConfirm, onCancel }) => (
 
 const InventoryPage = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]); // 2. Añadir estado para categories
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [modalMode, setModalMode] = useState(null); // null, 'view', 'edit', 'add'
+  const [modalMode, setModalMode] = useState(null);
   const [productToDelete, setProductToDelete] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
   const fetchProducts = async () => {
     try {
       const response = await productService.getProducts();
-      console.log('Respuesta de la API de productos:', response.data);
-
-      if (response.data && Array.isArray(response.data.products)) {
-        setProducts(response.data.products);
+      if (response.data && Array.isArray(response.data.data)) {
+        setProducts(response.data.data);
       } else if (Array.isArray(response.data)) {
         setProducts(response.data);
-      }
-      else {
-        console.warn('La respuesta de la API de productos no tiene el formato esperado (array). Se recibió:', response.data);
+      } else {
+        console.warn('La respuesta de la API de productos no tiene el formato esperado:', response.data);
         setProducts([]);
       }
     } catch (error) {
       console.error('Error al obtener los productos:', error);
-      setProducts([]); // En caso de error, también asegurar que sea un array
+      setProducts([]);
+    }
+  };
+  
+  // 3. Crear función para obtener categories
+  const fetchCategories = async () => {
+    try {
+      const response = await categoryService.getCategories();
+      if (response.data && Array.isArray(response.data.data)) {
+        setCategories(response.data.data);
+      } else if (Array.isArray(response.data)) {
+        setCategories(response.data);
+      } else {
+        console.warn('La respuesta de la API de categorías no tiene el formato esperado:', response.data);
+        setCategories([]);
+      }
+    } catch (error) {
+      console.error('Error al obtener las categorías:', error);
+      setCategories([]);
     }
   };
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories(); // 3. Llamar a la función
   }, []);
 
   // --- Funcionalidades CRUD ---
@@ -154,7 +181,7 @@ const InventoryPage = () => {
       price: '',
       stock: '', 
       status: 'available',
-      category_id: 1,
+      category_id: categories.length > 0 ? categories[0].id : '',
     });
     setModalMode('add');
   };
@@ -165,20 +192,32 @@ const InventoryPage = () => {
   };
 
   const handleSaveProduct = async (productData) => {
+    setSuccessMessage('');
+    setErrorMessage('');
     try {
+      const dataToSend = { ...productData, category_id: parseInt(productData.category_id, 10) };
       if (modalMode === 'add') {
-        await productService.createProduct(productData);
+        await productService.createProduct(dataToSend);
         setSuccessMessage(`Producto "${productData.name}" añadido con éxito.`);
-      } else { // Modo 'edit'
-        await productService.updateProduct(selectedProduct.id, productData);
+      } else {
+        await productService.updateProduct(selectedProduct.id, dataToSend);
         setSuccessMessage(`Producto "${productData.name}" actualizado.`);
       }
       await fetchProducts();
+      handleCloseModal();
     } catch (error) {
-      console.error("Error al guardar el producto:", error);
+      console.error("Error detallado al guardar el producto:", error.response || error);
+      let message = 'Ocurrió un error al guardar el producto.';
+      if (error.response && error.response.status === 422) {
+        const validationErrors = Object.values(error.response.data.errors).flat().join(' ');
+        message = `Error de validación: ${validationErrors}`;
+      }
+      setErrorMessage(message);
     }
-    handleCloseModal();
-    setTimeout(() => setSuccessMessage(''), 3000);
+    setTimeout(() => {
+      setSuccessMessage('');
+      setErrorMessage('');
+    }, 5000);
   };
 
   const handleConfirmDelete = async () => {
@@ -188,14 +227,23 @@ const InventoryPage = () => {
       fetchProducts();
     } catch (error) {
       console.error("Error al eliminar el producto:", error);
+      setErrorMessage('No se pudo eliminar el producto.');
     }
     setProductToDelete(null);
-    setTimeout(() => setSuccessMessage(''), 3000);
+    setTimeout(() => {
+      setSuccessMessage('');
+      setErrorMessage('');
+    }, 3000);
   };
 
   const handleLogout = () => {
     logout();
     navigate('/login', { replace: true });
+  };
+  
+  const getCategoryName = (categoryId) => {
+    const category = categories.find(c => c.id === categoryId);
+    return category ? category.name : 'Desconocida';
   };
 
   const filteredProducts = products.filter(product =>
@@ -214,11 +262,20 @@ const InventoryPage = () => {
                 {successMessage}
             </div>
         )}
+
+        {errorMessage && (
+            <div className={styles.errorNotification}>
+                {errorMessage}
+            </div>
+        )}
         
         <header className={styles.header}>
+            <div className={styles.titleGroup}>
+                <h1 className={styles.pageTitle}>Inventario General</h1>
+            </div>
             <div className={styles.userControls}>
                 <span className={styles.userName}>{user?.name || 'Usuario'}</span>
-                <span className={styles.userRole}>{user?.role?.name || 'Rol'}</span>
+                <span className={styles.userRole}>{user ? (user.role_id === 1 ? 'admin' : 'empleado') : 'Rol'}</span>
                 <button onClick={handleLogout} className={styles.logoutButton}>
                     <FaSignOutAlt /> Cerrar sesión
                 </button>
@@ -226,7 +283,6 @@ const InventoryPage = () => {
         </header>
 
         <section className={styles.inventorySection}>
-          <h2 className={styles.sectionTitle}>Inventario General</h2>
           
           <div className={styles.controls}>
             <div className={styles.searchBox}>
@@ -262,10 +318,11 @@ const InventoryPage = () => {
                   <tr key={product.id}>
                     <td className={styles.productName}>{product.name}</td>
                     <td>{product.description}</td>
-                    <td>{product.category_id === 1 ? 'Licores' : (product.category_id === 2 ? 'Cervezas' : 'Otros')}</td>
+                    {/* 5. Mostrar nombre de categoría dinámicamente */}
+                    <td>{getCategoryName(product.category_id)}</td>
                     <td>{product.stock}</td>
-                    <td>$ {product.price}</td>
-                    <td>{product.status}</td>
+                    <td>$ {Math.round(product.price)}</td>
+                    <td>{product.status === 'available' ? 'Disponible' : 'No Disponible'}</td>
                     <td className={styles.actions}>
                       <button className={styles.viewButton} onClick={() => handleView(product)} title="Ver Producto">
                         <FaEye className={styles.viewIcon} />
@@ -295,6 +352,7 @@ const InventoryPage = () => {
                 onClose={handleCloseModal}
                 onSave={handleSaveProduct}
                 mode={modalMode}
+                categories={categories} // 6. Pasar categories al modal
             />
         )}
 

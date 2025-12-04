@@ -28,6 +28,29 @@ const reportsService = {
   getMovementsByMonth: () => {
     return apiClient.get('/reports/movements-by-month');
   },
+
+  /**
+   * @returns {Promise<any>} Lista de productos más vendidos.
+   */
+  getMostSoldProducts: () => {
+    return apiClient.get('/reports/most-sold-products');
+  },
+
+  /**
+   * @param {number} month - El número del mes (1-12).
+   * @param {number} year - El año.
+   * @returns {Promise<any>} Lista de productos más vendidos para un mes y año específicos.
+   */
+  getMostSoldProductsByMonth: (month, year) => {
+    return apiClient.get(`/reports/most-sold-products-by-month?month=${month}&year=${year}`);
+  },
+  /**
+   * @returns {Promise<any>} Ventas totales agrupadas por mes.
+   */
+  getMonthlySales: () => {
+    // Asumiendo que el endpoint para las ventas mensuales es '/reports/monthly-sales'
+    return apiClient.get('/reports/monthly-sales');
+  },
 };
 
 export default reportsService;

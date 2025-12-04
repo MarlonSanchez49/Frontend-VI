@@ -2,15 +2,16 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar'; // AJUSTA ESTA RUTA si es necesario
 import { useAuth } from '../../hooks/useAuth';
-import { FaSignOutAlt, FaBook, FaMoneyBillWave, FaBalanceScale, FaChartBar, FaCalendarAlt } from 'react-icons/fa';
+import { FaSignOutAlt, FaMoneyBillWave, FaBalanceScale, FaChartBar, FaCalendarAlt, FaBoxOpen } from 'react-icons/fa';
 import styles from './ReportsPage.module.css';
+
 
 // --- Datos de Simulación ---
 const accountingStats = [
-    { label: 'Ingresos Netos', value: '$ 12.5M', icon: FaChartBar, color: 'green' },
-    { label: 'Pasivos Totales', value: '$ 4.2M', icon: FaMoneyBillWave, color: 'red' },
-    { label: 'Balance General', value: 'Positivo', icon: FaBalanceScale, color: 'blue' },
-    { label: 'Último Cierre', value: 'Q3 2025', icon: FaCalendarAlt, color: 'orange' },
+    { label: 'Ingresos Netos', value: '$ 12.5M', icon: FaChartBar, color: 'green', id: 'netIncome' },
+    { label: 'Pasivos Totales', value: '$ 4.2M', icon: FaMoneyBillWave, color: 'red', id: 'totalLiabilities' },
+    { label: 'Balance General', value: 'Positivo', icon: FaBalanceScale, color: 'blue', id: 'generalBalance' },
+    { label: 'Último Cierre', value: 'Q3 2025', icon: FaCalendarAlt, color: 'orange', id: 'lastClosing' },
 ];
 
 const recentTransactions = [
@@ -21,18 +22,19 @@ const recentTransactions = [
 ];
 
 // Componente de Tarjeta de Estadística
-// eslint-disable-next-line no-unused-vars
-const StatCard = ({ label, value, icon: Icon, color }) => (
-    <div className={`${styles.statCard} ${styles[color]}`}>
-        <Icon className={styles.statIcon} />
-        <div>
-            <p className={styles.statLabel}>{label}</p>
-            <p className={styles.statValue}>{value}</p>
+const StatCard = ({ label, value, icon: Icon, color }) => {
+    return (
+        <div className={`${styles.statCard} ${styles[color]}`}>
+            {Icon && <Icon className={styles.statIcon} />}
+            <div className={styles.statContent}>
+                <p className={styles.statLabel}>{label}</p>
+                <p className={styles.statValue}>{value}</p>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
-const AccountingPage = () => {
+const ReportsPage = () => {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
 
@@ -40,6 +42,10 @@ const AccountingPage = () => {
         logout();
         navigate('/login', { replace: true });
     };
+
+    const statsData = [
+        ...accountingStats, // Las estadísticas existentes de contabilidad
+    ];
 
     return (
         <div className={styles.dashboardLayout}>
@@ -53,13 +59,13 @@ const AccountingPage = () => {
                 {/* Header Superior con Logout */}
                 <header className={styles.header}>
                     <div className={styles.titleGroup}>
-                        <h1 className={styles.pageTitle}>Contabilidad</h1>
-                        <p className={styles.pageSubtitle}>Resumen financiero y gestión de flujo de caja</p>
+                        <h1 className={styles.pageTitle}>Reportes</h1>
+                        <p className={styles.pageSubtitle}>Análisis y visualización de datos de ventas e inventario</p>
                     </div>
                     
                     <div className={styles.userControls}>
                         <span className={styles.userName}>{user?.name || 'Usuario'}</span>
-                        <span className={styles.userRole}>{user?.role?.name || 'Rol'}</span>
+                        <span className={styles.userRole}>{user ? (user.role_id === 1 ? 'admin' : 'empleado') : 'Rol'}</span>
                         <button onClick={handleLogout} className={styles.logoutButton}>
                             <FaSignOutAlt />
                             <span>Cerrar sesión</span>
@@ -69,8 +75,8 @@ const AccountingPage = () => {
 
                 {/* 3. Tarjetas de Estadísticas */}
                 <section className={styles.statsGrid}>
-                    {accountingStats.map((stat, index) => (
-                        <StatCard key={index} {...stat} />
+                    {statsData.map((stat) => (
+                        <StatCard key={stat.id} {...stat} />
                     ))}
                 </section>
 
@@ -112,4 +118,4 @@ const AccountingPage = () => {
     );
 };
 
-export default AccountingPage;
+export default ReportsPage;

@@ -19,6 +19,8 @@
     --color-green-600: #16A34A;
     --color-green-700: #15803D;
     --color-blue-700: #1D4ED8;
+    --color-header-bg: #2F69E6; /* Darker background for the header */
+    --color-header-text: #F9FAFB; /* Light text for header */
 }
 
 /* Base body styles from HTML reference */
@@ -28,94 +30,32 @@ body {
   color: var(--color-on-surface);
 }
 
-.mainWrapper {
+.posPageContainer {
   display: flex;
-  height: 100vh;
+  flex-direction: column; /* Stack header and main grid vertically */
+  min-height: 100vh;
   width: 100%;
+  overflow-y: auto;
+  padding: 1.5rem; /* Added padding to create space from the edges */
 }
+
+
 
 .mainGrid {
   flex: 1; /* flex-1 */
   display: grid;
-  grid-template-columns: repeat(10, 1fr); /* grid-cols-10 */
+  grid-template-columns: repeat(1, 1fr); /* Default to single column for very small screens */
   gap: 1.5rem; /* gap-6 */
   padding: 1.5rem; /* p-6 */
-  overflow: hidden;
+  /* Removed overflow: hidden; */
+  overflow-y: auto; /* Allow internal scrolling if grid content overflows */
 }
 
-/* Global Header (top of the page) */
-.globalHeader {
-  grid-column: span 10 / span 10; /* col-span-10 default for mobile */
-  flex-shrink: 0;
-  margin-bottom: 1.5rem; /* mb-6 */
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 
-.posTitle {
-  font-size: 1.875rem; /* text-3xl */
-  font-weight: 700; /* font-bold */
-  color: var(--color-on-surface);
-}
-
-.headerRightSection {
-  display: flex;
-  align-items: center;
-  gap: 1rem; /* space-x-4 */
-}
-
-.notificationButton {
-  position: relative;
-  color: var(--color-on-surface-secondary);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: color 0.2s;
-}
-.notificationButton:hover {
-  color: var(--color-on-surface);
-}
-
-.userProfileSection {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem; /* space-x-3 */
-}
-
-.userAvatar {
-  width: 2.5rem; /* w-10 */
-  height: 2.5rem; /* h-10 */
-  border-radius: 9999px; /* rounded-full */
-}
-
-.userName {
-  font-weight: 600; /* font-semibold */
-  font-size: 0.875rem; /* text-sm */
-  color: var(--color-on-surface);
-}
-
-.userEmail {
-  font-size: 0.75rem; /* text-xs */
-  color: var(--color-on-surface-secondary);
-}
-
-.userDropdownButton {
-  color: var(--color-on-surface-secondary);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: color 0.2s;
-}
-.userDropdownButton:hover {
-  color: var(--color-on-surface);
-}
 
 /* Products Panel (left column) */
 .productPanel {
-  grid-column: span 10 / span 10; /* col-span-10 default for mobile */
+  grid-column: span 1 / span 1; /* Default to single column for very small screens */
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -123,7 +63,7 @@ body {
 
 /* Sale Panel (right column) */
 .salePanel {
-  grid-column: span 10 / span 10; /* col-span-10 default for mobile */
+  grid-column: span 1 / span 1; /* Default to single column for very small screens */
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -133,93 +73,27 @@ body {
 }
 
 /* Media Queries for responsive layout */
-@media (min-width: 1024px) { /* lg breakpoint */
+@media (min-width: 768px) { /* md breakpoint */
+  .mainGrid {
+    grid-template-columns: repeat(10, 1fr); /* Revert to 10 columns for medium screens and up */
+  }
+
   .productPanel {
-    grid-column: span 6 / span 6; /* lg:col-span-6 */
+    grid-column: span 6 / span 6; /* md:col-span-6 */
   }
   .salePanel {
-    grid-column: span 4 / span 4; /* lg:col-span-4 */
+    grid-column: span 4 / span 4; /* md:col-span-4 */
   }
 }
 
-@media (min-width: 1280px) { /* xl breakpoint */
-  .productPanel {
-    grid-column: span 6 / span 6; /* xl:col-span-6 */
-  }
-  .salePanel {
-    grid-column: span 4 / span 4; /* xl:col-span-4 */
-  }
-}
+/* No change for lg and xl from previous, they already use 6 and 4 spans respectively */
 
-/* Table Selection Container */
-.tableSelectionContainer {
-  flex-shrink: 0;
-  margin-bottom: 1.5rem; /* mb-6 */
-}
 
-.tableSelection {
+/* Table Selection Group (New Dropdown) */
+.tableSelectionGroup {
   display: flex;
-  flex-wrap: wrap; /* Para que los botones puedan saltar de línea si no caben */
-  gap: 0.5rem; /* space-x-2 */
-  border-bottom: 1px solid var(--color-gray-200);
-  /* The original .tableSelection was sticky. Need to apply sticky here if desired */
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background-color: var(--color-background); /* Ensure solid background when sticky */
+  flex-direction: column;
 }
-
-.tableButton {
-  padding: 0.75rem 1rem; /* px-4 py-3 */
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 600; /* font-semibold */
-  color: var(--color-on-surface-secondary);
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative; /* Para la línea inferior */
-}
-.tableButton:hover {
-  color: var(--color-on-surface);
-}
-.tableButton::after { /* Simular border-b-2 on hover */
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 2px;
-    background-color: transparent;
-    transition: background-color 0.2s ease-in-out;
-}
-.tableButton:hover::after {
-    background-color: var(--color-gray-300);
-}
-
-
-.activeTableButton {
-  color: var(--color-primary);
-}
-.activeTableButton::after {
-  background-color: var(--color-primary);
-}
-.activeTableButton:hover::after { /* Override hover for active state */
-    background-color: var(--color-primary);
-}
-
-.addTableButton {
-  padding: 0.75rem 1rem; /* px-4 py-3 */
-  color: var(--color-on-surface-secondary);
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.addTableButton:hover {
-  color: var(--color-on-surface);
-}
-
 
 /* Product Search and Grid */
 .productSearchAndGrid {
@@ -231,9 +105,10 @@ body {
 
 .productHeaderAndSearch {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column; /* Always column */
+  align-items: flex-start; /* Align items to start */
   margin-bottom: 1rem; /* mb-4 */
+  gap: 0.5rem; /* Add gap between title and search */
 }
 
 .productSectionTitle {
@@ -244,6 +119,28 @@ body {
 
 .searchContainer {
   position: relative;
+  width: 100%; /* Make search full width on small screens */
+}
+
+.searchContainerInteractive {
+  display: flex; /* Make it a flex container */
+  align-items: center; /* Vertically align items */
+}
+
+.searchContainerInteractive .searchIcon {
+  position: relative; /* Change to relative or remove absolute if flex handles it */
+  left: auto;
+  top: auto;
+  transform: none;
+  margin-right: 0.5rem; /* Space between icon and input */
+  font-size: 1.25rem; /* text-xl */
+  color: var(--color-on-surface-secondary);
+}
+
+@media (min-width: 640px) { /* sm breakpoint */
+  .searchContainer {
+    width: 100%; /* Make search full width on larger screens for symmetry */
+  }
 }
 
 .searchIcon {
@@ -265,11 +162,20 @@ body {
   color: var(--color-on-surface);
   transition: all 0.2s;
 }
+
+.searchContainerInteractive .searchInputExtended {
+  flex-grow: 1; /* Allow input to take available space */
+  padding-left: 1rem; /* Adjust padding as icon is now to the left */
+  padding-right: 1rem; /* Adjusted padding as clear button is removed */
+}
+
 .searchInputExtended:focus {
   outline: none;
   border-color: var(--color-primary); /* focus:border-primary */
   box-shadow: 0 0 0 3px var(--color-primary-light); /* focus:ring-primary */
 }
+
+
 
 .productsGridContainer {
   flex: 1; /* flex-1 */
@@ -305,41 +211,34 @@ body {
 }
 
 .productCard {
-  background-color: var(--color-background);
-  border: 1px solid var(--color-gray-200);
-  border-radius: 0.75rem; /* rounded-xl */
-  padding: 1rem; /* p-4 */
-  text-align: center;
+  background-color: var(--color-background); /* Similar to search input background */
+  border: 2px solid var(--color-gray-300); /* Similar to search input border */
+  border-radius: 0.5rem; /* Similar to search input border-radius */
+  padding: 0.5rem 1rem; /* Adjusted padding for a compact, search-like look */
   cursor: pointer;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: column; /* Keep it vertical for name and price */
+  align-items: flex-start; /* Align text to the left */
   transition: all 0.2s ease-in-out;
+  text-align: left;
 }
 .productCard:hover {
-  border-color: var(--color-primary); /* hover:border-primary */
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* hover:shadow-lg */
+  border-color: var(--color-primary); /* Focus-like border on hover */
+  box-shadow: 0 0 0 3px var(--color-primary-light); /* Focus-like shadow on hover */
   transform: translateY(-2px);
-}
-
-.productImage {
-  width: 6rem; /* w-24 */
-  height: 6rem; /* h-24 */
-  margin: 0 auto 0.75rem auto; /* mx-auto mb-3 */
-  object-fit: cover;
-  border-radius: 0.5rem; /* rounded-lg */
 }
 
 .productName {
   font-weight: 600; /* font-semibold */
   font-size: 0.875rem; /* text-sm */
   color: var(--color-on-surface);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.1rem; /* Smaller margin for compact look */
+  line-height: 1.2;
 }
 
 .productPrice {
   color: var(--color-on-surface-secondary);
-  font-size: 0.875rem; /* text-sm */
+  font-size: 0.8rem; /* Slightly smaller text for price */
 }
 
 /* Sale Panel Content */
@@ -368,15 +267,17 @@ body {
   display: flex;
   align-items: center;
   font-size: 0.875rem; /* text-sm */
-  font-weight: 500; /* font-medium */
-  color: var(--color-on-surface-secondary);
-  background: none;
+  font-weight: 600; /* font-medium -> font-semibold */
+  color: var(--color-background); /* text-white */
+  background-color: var(--color-red-500); /* red-500 */
+  padding: 0.5rem 0.75rem; /* py-2 px-3 */
+  border-radius: 0.5rem; /* rounded-lg */
   border: none;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: all 0.2s;
 }
 .clearCartButton:hover {
-  color: var(--color-on-surface);
+  background-color: var(--color-red-600); /* hover:bg-red-600 */
 }
 .clearCartButton .material-symbols-outlined {
     font-size: 1.25rem; /* text-xl */
@@ -415,42 +316,55 @@ body {
     color: var(--color-gray-400);
 }
 
-/* Cart List (when not empty) */
 .cartList {
     width: 100%;
     list-style: none;
     padding: 0;
     margin: 0;
-    overflow-y: auto;
+    /* max-height: 300px;  Example max height, adjust as needed */
+    overflow-y: auto; /* Ensure list itself scrolls */
+    flex: 1; /* Allow cart list to take available space */
+    padding-right: 0.5rem; /* Add some padding to the right for scrollbar */
 }
 
-/* Cart Item (from previous .cartItem, adapt to new structure if needed) */
-/* Retaining previous cart item styles but adapting for the new .cartList structure */
 .cartItem {
+  display: flex;
+  flex-direction: column; /* Stack item details and total vertically within the item */
+  background-color: var(--color-background);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem; /* More padding for better spacing */
+  margin-bottom: 0.75rem; /* Increased space between items */
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); /* Subtle shadow */
+}
+
+.itemDetails {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #f3f4f6; /* Use a color var if available */
+  width: 100%;
+  margin-bottom: 0.5rem; /* Space between product name/controls and total */
 }
 
-.itemDetails p {
-  margin: 0;
+.itemName {
+  font-weight: 600;
+  font-size: 1rem; /* Slightly larger font for product name */
   color: var(--color-on-surface);
+  margin: 0;
+  flex-grow: 1; /* Allow name to take available space */
 }
 
 .itemControls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+  gap: 0.75rem; /* Increased gap within controls */
+  font-size: 0.9rem; /* Slightly larger font */
   color: var(--color-on-surface-secondary);
 }
 
 .quantityButton {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1.8rem; /* Slightly larger buttons */
+  height: 1.8rem; /* Slightly larger buttons */
   background-color: var(--color-gray-200);
   border-radius: 50%;
   border: none;
@@ -458,7 +372,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.1rem; /* Larger icon */
   font-weight: 600;
   color: var(--color-gray-700);
   transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
@@ -469,18 +383,27 @@ body {
   transform: scale(1.05);
 }
 
-.itemPrice {
-    font-size: 0.875rem;
-    color: var(--color-on-surface-secondary);
+.itemQuantity {
+  font-weight: 500;
+  color: var(--color-on-surface);
+}
+
+.itemPriceUnit {
+  font-size: 0.85rem; /* Slightly adjusted font for price unit */
+  color: var(--color-on-surface-secondary);
+  white-space: nowrap; /* Prevent wrapping for "x $X.XX" */
 }
 
 .itemTotal {
-    font-weight: 500;
+    font-weight: 600; /* Bolder total */
+    font-size: 1.05rem; /* Slightly larger total */
     color: var(--color-on-surface);
+    text-align: right; /* Align total to the right */
+    width: 100%; /* Ensure total spans full width below details */
 }
 
 
-/* Totals Summary */
+/* Totals Summary (Removed content from JS, keeping structure for potential future use or if total is put back) */
 .totalsSummary {
   margin-bottom: 1.5rem; /* mb-6 */
   flex-shrink: 0;
@@ -506,15 +429,14 @@ body {
   color: var(--color-on-surface);
 }
 
-.totalRow {
+.totalDisplay {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  font-size: 1.25rem; /* text-xl */
-  font-weight: 700; /* font-bold */
-  color: var(--color-on-surface);
-  padding-top: 0.75rem; /* pt-3 */
+  align-items: center;
+  padding: 1rem 0; /* Add vertical padding */
   border-top: 1px solid var(--color-gray-200);
+  margin-top: auto; /* Push to bottom */
+  margin-bottom: 1rem; /* Added spacing to separate from payment inputs */
 }
 
 /* Payment Inputs Section */
@@ -525,27 +447,28 @@ body {
 /* Input y Select */
 .formInput {
   width: 100%;
-  padding: 0.125rem 1rem; /* Padding vertical aún más reducido */
-  border: 1px solid var(--color-gray-300);
+  padding: 0.5rem 1rem; /* Standardized padding */
+  border: 2px solid var(--color-gray-300); /* Thicker border */
   border-radius: 0.5rem; /* rounded-lg */
-  font-size: 0.75rem; /* text-xs */
+  font-size: 0.875rem; /* Standardized font size */
   color: var(--color-gray-700);
   transition: border-color 0.2s, box-shadow 0.2s;
   background-color: var(--color-background); /* bg-white */
+  box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
 }
 
 .formInput:focus {
   outline: none;
-  border-color: var(--color-primary);
+  border-color: var(--color-primary); /* Primary color on focus */
   box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 .formSelect {
   width: 100%;
-  padding: 0.125rem 1rem; /* Padding vertical aún más reducido */
-  border: 1px solid var(--color-gray-300); /* Add border back as per HTML ref */
+  padding: 0.5rem 1rem; /* Standardized padding */
+  border: 2px solid var(--color-gray-300); /* Consistent border with formInput */
   border-radius: 0.5rem; /* rounded-lg */
-  font-size: 0.75rem; /* text-xs */
+  font-size: 0.875rem; /* Standardized font size */
   color: var(--color-gray-700);
   transition: border-color 0.2s, box-shadow 0.2s;
   background-color: var(--color-background); /* bg-white */
@@ -556,6 +479,8 @@ body {
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 1.5em 1.5em;
+  box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
+  height: 2.5rem; /* Fixed height for consistency */
 }
 
 .formSelect:focus {
@@ -564,11 +489,71 @@ body {
   box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
-/* paymentDetailsGrid, inputLabel, cashReceivedGroup, paymentMethodGroup, nequiVoucherInputGroup
-   were already defined, ensure they are compatible or updated.
-   The old definitions are overwritten by the new ones below.
-*/
+.paymentDetailsGrid {
+  display: grid;
+  grid-template-columns: 1fr; /* Single column for small screens */
+  gap: 1rem; /* gap-4 */
+  margin-bottom: 1rem;
+  align-items: start; /* Align items at the top */
+}
 
+@media (min-width: 640px) { /* sm breakpoint */
+  .paymentDetailsGrid {
+    grid-template-columns: repeat(2, 1fr); /* Two columns for larger screens */
+  }
+}
+
+.cashReceivedGroup,
+.paymentMethodGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-on-surface);
+  margin-bottom: 0.5rem;
+}
+
+.amountReceivedInputGroup {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch; /* Align items to stretch vertically to match height */
+  height: 2.5rem; /* Set height to match formSelect for consistent alignment */
+}
+
+.amountReceivedInputGroup .formInput {
+    flex-grow: 1; /* Allow input to take available space */
+}
+
+.completeAmountButton {
+  background-color: var(--color-primary); /* indigo-600 */
+  color: white;
+  padding: 0 0.75rem; /* Adjust horizontal padding, remove vertical as height is fixed */
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s, transform 0.1s;
+  flex-shrink: 0; /* Prevent button from shrinking */
+  font-size: 0.75rem; /* text-xs */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* Make button take full height of parent amountReceivedInputGroup */
+}
+
+.completeAmountButton:hover {
+  background-color: var(--color-primary-hover); /* indigo-700 */
+  transform: translateY(-1px);
+}
+
+.completeAmountButton:disabled {
+  background-color: var(--color-gray-400); /* gray-400 */
+  cursor: not-allowed;
+}
 
 /* Action Buttons Container */
 .actionButtonsContainer {
@@ -584,9 +569,9 @@ body {
   background-color: var(--color-green-600);
   color: var(--color-background); /* text-white */
   font-weight: 700;
-  padding: 0.75rem 1rem; /* py-3 px-4 */
+  padding: 1rem 1.5rem; /* Increased padding */
   border-radius: 0.5rem; /* rounded-lg */
-  font-size: 1rem;
+  font-size: 1.125rem; /* Increased font size */
   border: none;
   cursor: pointer;
   display: flex;
@@ -639,29 +624,162 @@ body {
   color: var(--color-red-600);
 }
 
-.completeAmountButton {
-  background-color: var(--color-primary); /* indigo-600 */
-  color: white;
-  padding: 0.125rem 1rem; /* Matched vertical padding with formInput - Aún más corto */
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s, transform 0.1s;
-  flex-shrink: 0; /* Prevent button from shrinking */
-  height: 16px; /* Set a fixed height to match input (approx 0.75rem font + 0.125rem padding*2) - Aún más corto */
-  font-size: 0.75rem; /* text-xs */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Added .nequiVoucherInputGroup for consistency */
+.nequiVoucherInputGroup {
+  margin-top: 1rem;
 }
 
-.completeAmountButton:hover {
-  background-color: var(--color-primary-hover); /* indigo-700 */
-  transform: translateY(-1px);
+
+.header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    margin-bottom: 20px;
+    background-color: var(--color-header-bg); /* Use existing var for header background */
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
-.completeAmountButton:disabled {
-  background-color: var(--color-gray-400); /* gray-400 */
-  cursor: not-allowed;
+.titleGroup {
+    flex-grow: 1;
+}
+
+.pageTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-header-text); /* Use existing var for header text */
+    margin-bottom: 5px;
+}
+
+.pageSubtitle {
+    font-size: 0.9rem;
+    color: var(--color-header-text); /* Use existing var for header text */
+}
+
+.userControls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: rgba(255, 255, 255, 0.1); /* Subtle white background, similar to old userProfileSection */
+    padding: 0.5rem 1rem;
+    border-radius: 9999px; /* Fully rounded */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.userName {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-header-text); /* Use existing var for header text */
+}
+.userRole { 
+    font-size: 0.8rem; 
+    color: var(--color-header-text); /* Use existing var for header text */
+}
+
+.logoutButton {
+    cursor: pointer;
+    background-color: var(--color-red-500); /* Use existing var for red color */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.15s;
+    gap: 0.5rem;
+}
+.logoutButton:hover {
+    background-color: var(--color-red-600); /* Use existing var for darker red */
+}
+
+/* Daily Sales Summary Section */
+.dailySalesSummary {
+    display: flex;
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1rem; /* Space below this section */
+    padding-bottom: 1rem; /* Internal padding */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Subtle separator */
+    color: var(--color-header-text);
+}
+
+.dateFilterGroup {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem; /* For smaller screens when wrapped */
+}
+
+.dateFilterLabel {
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap; /* Prevent label from wrapping */
+}
+
+.dateInput {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 0.375rem; /* rounded-md */
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--color-header-text);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    -webkit-appearance: none; /* Remove default date input styling */
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+    filter: invert(1); /* Make calendar icon visible on dark background */
+}
+
+
+.dateInput:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.dateInput:focus {
+    outline: none;
+    border-color: var(--color-primary-light);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.netIncomeDisplay {
+    display: flex;
+    flex-direction: column; /* Stack label and value */
+    align-items: flex-end;
+    margin-bottom: 0.5rem; /* For smaller screens when wrapped */
+}
+
+.netIncomeLabel {
+    font-size: 0.8rem;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+.netIncomeValue {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-header-text);
+}
+
+@media (min-width: 768px) { /* md breakpoint */
+    .dailySalesSummary {
+        flex-wrap: nowrap; /* Prevent wrapping on larger screens */
+        margin-bottom: 1.5rem;
+    }
+    .dateFilterGroup {
+        margin-bottom: 0;
+    }
+    .netIncomeDisplay {
+        margin-bottom: 0;
+    }
 }

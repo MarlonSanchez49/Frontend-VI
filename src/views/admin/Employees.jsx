@@ -3,17 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
 import { useAuth } from '../../hooks/useAuth';
 import employeeService from '../../services/employeeService';
-import { FaSignOutAlt, FaUsers, FaCheckSquare, FaChartLine, FaStar, FaPlus, FaEye, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
+import { FaSignOutAlt, FaUsers, FaCheckSquare, FaPlus, FaEye, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
 import styles from './EmployeesPage.module.css'; // Asegúrate que este es el archivo de estilos correcto
 
 
-
-const statsData = [
-    { label: 'Total Empleados', value: '10', icon: FaUsers, color: 'blue', trend: '+5.0%' },
-    { label: 'Empleados Activos', value: '6', icon: FaCheckSquare, color: 'green', trend: '60%' },
-    { label: 'Ventas Totales (Mes)', value: '$ 117.925.484', icon: FaChartLine, color: 'orange', trend: '-10.3%' },
-    { label: 'Mejor Vendedor', value: 'david', subValue: 'Ventas: $18.875.97', icon: FaStar, color: 'purple' },
-];
 
 // --- Componente Modal para Detalles del Empleado (Copiado de Dashboard) ---
 const EmployeeDetailModal = ({ user, onClose, onSave, mode, errors }) => {
@@ -120,6 +113,10 @@ const StatCard = ({ label, value, subValue, icon: Icon, color }) => (
 
 const EmployeesPage = () => {
   const [employees, setEmployees] = useState([]);
+  const [statsData, setStatsData] = useState([
+    { label: 'Total Empleados', value: '0', icon: FaUsers, color: 'blue' },
+    { label: 'Empleados Activos', value: '0', icon: FaCheckSquare, color: 'green' },
+  ]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [modalMode, setModalMode] = useState(null); // null, 'view', 'edit', 'add'
   const [employeeToDelete, setEmployeeToDelete] = useState(null);
@@ -127,6 +124,19 @@ const EmployeesPage = () => {
   const [validationErrors, setValidationErrors] = useState(null);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+
+  useEffect(() => {
+    // Este efecto se ejecuta cuando la lista de empleados cambia
+    if (employees && employees.length > 0) {
+        const totalEmployees = employees.length;
+        const activeEmployees = employees.filter(emp => emp.status === 'active').length;
+
+        setStatsData(prevStats => [
+            { ...prevStats[0], value: totalEmployees.toString() },
+            { ...prevStats[1], value: activeEmployees.toString() },
+        ]);
+    }
+  }, [employees]);
 
   const fetchEmployees = async () => {
     try {
@@ -225,13 +235,19 @@ const EmployeesPage = () => {
     setEmployeeToDelete(employee);
   };
 
-  const handleConfirmDelete = () => {
-    setEmployees(employees.filter(emp => emp.id !== employeeToDelete.id));
-    setSuccessMessage(`Empleado "${employeeToDelete.name}" eliminado con éxito.`);
+  const handleConfirmDelete = async () => {
+    try {
+      await employeeService.deleteEmployee(employeeToDelete.id);
+      setSuccessMessage(`Empleado "${employeeToDelete.name}" eliminado con éxito.`);
+      fetchEmployees(); // Refrescar la lista desde la API
+    } catch (error) {
+      console.error("Error al eliminar el empleado:", error);
+      // Aquí se podría establecer un mensaje de error en el estado para mostrarlo en la UI
+    }
     setEmployeeToDelete(null);
     setTimeout(() => {
       setSuccessMessage('');
-    }, 3000); // El mensaje desaparece después de 3 segundos
+    }, 3000);
   };
   
   const handleLogout = () => {
@@ -263,7 +279,7 @@ const EmployeesPage = () => {
             </div>
             <div className={styles.userControls}>
                 <span className={styles.userName}>{user?.name || 'Usuario'}</span>
-                <span className={styles.userRole}>{user?.role?.name || 'Rol'}</span>
+                <span className={styles.userRole}>{user ? (user.role_id === 1 ? 'admin' : 'empleado') : 'Rol'}</span>
                 <button onClick={handleLogout} className={styles.logoutButton}>
                     <FaSignOutAlt /> Cerrar sesión
                 </button>
@@ -305,7 +321,7 @@ const EmployeesPage = () => {
                                 <td>{emp.phone}</td>
                                 <td>
                                     <span className={`${styles.statusBadge} ${styles[emp.status?.toLowerCase() || '']}`}>
-                                        {emp.status}
+                                        {emp.status === 'active' ? 'Activo' : 'Inactivo'}
                                     </span>
                                 </td>
                                 <td className={styles.actions}>

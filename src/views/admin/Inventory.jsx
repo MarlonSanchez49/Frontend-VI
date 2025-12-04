@@ -218,7 +218,7 @@ const Inventory = () => {
         <header className={styles.header}>
             <div className={styles.userControls}>
                 <span className={styles.userName}>{user?.name || 'Usuario'}</span>
-                <span className={styles.userRole}>{user?.role?.name || 'Rol'}</span>
+                <span className={styles.userRole}>{user ? (user.role_id === 1 ? 'admin' : 'empleado') : 'Rol'}</span>
                 <button onClick={handleLogout} className={styles.logoutButton}>
                     <FaSignOutAlt /> Cerrar sesión
                 </button>

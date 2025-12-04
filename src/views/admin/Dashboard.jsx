@@ -1,23 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { FaUserCircle, FaFire, FaSignOutAlt } from 'react-icons/fa';
+import productService from '../../services/productService';
+import employeeService from '../../services/employeeService';
+import salesService from '../../services/salesService'; // Cambiado a salesService
+import reportsService from '../../services/reportsService';
+import { FaSignOutAlt, FaExclamationTriangle } from 'react-icons/fa'; // Corregido: Eliminada importación duplicada
+import MovementsChart from '../../components/admin/MovementsChart'; // Import MovementsChart
 import styles from './Dashboard.module.css';
 
-// --- Datos de Simulación para el Resumen de Inventario ---
-const inventorySummary = [
-    { id: 2, name: 'Vodka Oddka', quantity: 17, status: 'Normal' },
-    { id: 5, name: 'Buchanans Master 18 Años', quantity: 7, status: 'Bajo Stock' },
-    { id: 4, name: 'Ron Caldas 700ML', quantity: 73, status: 'Normal' },
-    { id: 1, name: 'Aguardiente Amarillo', quantity: 92, status: 'Normal' },
-];
-
-// --- Datos de Simulación para la Lista de Personal ---
-const initialStaff = [
-    { id: 101, name: 'Carlos Rivas', role: 'Vendedor', status: 'Activo' },
-    { id: 102, name: 'Lucía Méndez', role: 'Cajero', status: 'Activo' },
-    { id: 103, name: 'Jorge Campos', role: 'Bodeguero', status: 'Descansando' },
-];
+// --- Helper para normalizar la respuesta de la API ---
+const getDataFromResponse = (response) => {
+    if (response && response.data) {
+        return response.data.data || response.data || [];
+    }
+    return [];
+};
 
 // --- Componente Modal para Detalles del Empleado ---
 const StaffDetailModal = ({ user, onClose, onUpdateStatus }) => {
@@ -37,13 +35,13 @@ const StaffDetailModal = ({ user, onClose, onUpdateStatus }) => {
                         <span>Nombre:</span> <strong>{user.name}</strong>
                     </div>
                     <div className={styles.modalInfoRow}>
-                        <span>Rol:</span> <strong>{user.role}</strong>
+                        <span>Cargo:</span> <strong>{user.position || 'N/A'}</strong>
                     </div>
                     <div className={`${styles.modalInfoRow} ${styles.modalField}`}>
                         <label htmlFor="status">Estado:</label>
                         <select id="status" value={user.status} onChange={handleStatusChange} className={styles.statusSelect}>
-                            <option value="Activo">Activo</option>
-                            <option value="Descansando">Descansando</option>
+                            <option value="active">Activo</option>
+                            <option value="inactive">Inactivo</option>
                         </select>
                     </div>
                 </div>
@@ -76,7 +74,7 @@ const StaffList = ({ staff, onView, onDelete }) => (
                 <thead>
                     <tr>
                         <th>NOMBRE</th>
-                        <th>ROL</th>
+                        <th>CARGO</th>
                         <th>ESTADO</th>
                         <th>ACCIONES</th>
                     </tr>
@@ -85,10 +83,10 @@ const StaffList = ({ staff, onView, onDelete }) => (
                     {staff.map((employee) => (
                         <tr key={employee.id}>
                             <td>{employee.name}</td>
-                            <td>{employee.role}</td>
+                            <td>{employee.position || 'N/A'}</td>
                             <td>
-                                <span className={`${styles.statusBadge} ${styles[employee.status.toLowerCase()]}`}>
-                                    {employee.status}
+                                <span className={`${styles.statusBadge} ${styles[employee.status?.toLowerCase() || 'inactivo']}`}>
+                                    {employee.status === 'active' ? 'Activo' : 'Inactivo'}
                                 </span>
                             </td>
                             <td className={styles.actionButtons}>
@@ -107,15 +105,122 @@ const Dashboard = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
-    // --- Estados para la gestión de personal ---
-    const [staff, setStaff] = useState(initialStaff);
+    // --- Estados para los datos del dashboard ---
+    const [staffData, setStaffData] = useState([]);
+    const [inventorySummaryData, setInventorySummaryData] = useState([]);
+    const [lowStockCount, setLowStockCount] = useState(0);
+    
+    // Estados para el gráfico de productos más vendidos por mes
+    const [bestSellingByMonth, setBestSellingByMonth] = useState([]);
+    const [selectedDate, setSelectedDate] = useState({
+        month: new Date().getMonth() + 1, // Mes actual (1-12)
+        year: new Date().getFullYear(),   // Año actual
+    });
+    const [chartLoading, setChartLoading] = useState(true);
+    
     const [selectedStaff, setSelectedStaff] = useState(null);
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [staffToDelete, setStaffToDelete] = useState(null);
 
-    // Simulamos que no hay datos para mostrar en la gráfica
-    const chartData = []; 
-    
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+
+                // Cargar empleados
+                const employeesResponse = await employeeService.getEmployees();
+                setStaffData(getDataFromResponse(employeesResponse));
+
+                // Cargar productos para el resumen
+                const productsResponse = await productService.getProducts();
+                const products = getDataFromResponse(productsResponse);
+                setInventorySummaryData(products.slice(0, 5));
+                
+                // Cargar productos con bajo stock
+                const lowStockResponse = await reportsService.getLowStock();
+                setLowStockCount(getDataFromResponse(lowStockResponse).length);
+
+            } catch (error) {
+                console.error("Error al cargar los datos del dashboard:", error);
+                const errorMessage = error.response?.data?.message || error.message || "No se pudieron cargar los datos. Revise la conexión con el servidor.";
+                setError(`Error: ${errorMessage}`);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    // useEffect para cargar los datos del gráfico cuando cambia la fecha
+    useEffect(() => {
+        const fetchChartData = async () => {
+            setChartLoading(true);
+            try {
+                // 1. Obtener todas las ventas
+                const response = await salesService.getSales();
+                const allSales = getDataFromResponse(response);
+
+                // DEBUG: Muestra todas las ventas recibidas de la API
+                console.log("Ventas recibidas de la API:", allSales);
+
+                // 2. Filtrar ventas por el mes y año seleccionados
+                const filteredSales = allSales.filter(sale => {
+                    const saleDate = new Date(sale.created_at);
+                    return saleDate.getFullYear() === selectedDate.year && (saleDate.getMonth() + 1) === selectedDate.month;
+                });
+
+                // DEBUG: Muestra las ventas después de filtrar por fecha
+                console.log(`Ventas filtradas para ${selectedDate.month}/${selectedDate.year}:`, filteredSales);
+
+                // 3. Procesar los datos para agregar las cantidades de productos
+                const productQuantities = {};
+                filteredSales.forEach(sale => { 
+                    // Corregido: Buscar productos en 'sale_products' y asegurarse de que exista.
+                    const productsInSale = sale.sale_products || sale.products || [];
+                    
+                    productsInSale.forEach(item => {
+                        // Lógica más robusta para encontrar el nombre del producto
+                        const productName = item.product?.name || item.name; // Intenta item.product.name, si no, item.name
+                        const quantity = item.quantity;
+
+                        if (productName && quantity) {
+                            productQuantities[productName] = (productQuantities[productName] || 0) + Number(quantity);
+                        }
+                    });
+                });
+
+                // 4. Convertir el objeto a un array y ordenar
+                const sortedProducts = Object.keys(productQuantities)
+                    .map(name => ({
+                        name: name,
+                        total_quantity: productQuantities[name]
+                    }))
+                    .sort((a, b) => b.total_quantity - a.total_quantity);
+
+                // DEBUG: Imprimir los datos procesados para ver qué se enviará a la gráfica
+                console.log("Datos procesados para la gráfica:", sortedProducts);
+
+                setBestSellingByMonth(sortedProducts.slice(0, 10)); // Mostrar los 10 más vendidos
+            } catch (error) {
+                console.error("Error al cargar los productos más vendidos del mes:", error);
+                setBestSellingByMonth([]); // Limpiar datos en caso de error
+            } finally {
+                setChartLoading(false);
+            }
+        };
+        fetchChartData();
+    }, [selectedDate]);
+
+    const handleDateChange = (e) => {
+        const { name, value } = e.target;
+        setSelectedDate(prev => ({ ...prev, [name]: parseInt(value) }));
+    };
+
     const handleLogout = () => {
         logout();
         navigate('/login', { replace: true });
@@ -132,14 +237,22 @@ const Dashboard = () => {
         setSelectedStaff(null);
     };
 
-    const handleUpdateStatus = (employeeId, newStatus) => {
-        const updatedStaff = staff.map(emp => 
-            emp.id === employeeId ? { ...emp, status: newStatus } : emp
-        );
-        setStaff(updatedStaff);
-        // Actualiza también el empleado seleccionado en el modal para reflejar el cambio
-        if (selectedStaff && selectedStaff.id === employeeId) {
-            setSelectedStaff({ ...selectedStaff, status: newStatus });
+    const handleUpdateStatus = async (employeeId, newStatus) => {
+        try {
+            const employeeToUpdate = staffData.find(emp => emp.id === employeeId);
+            if (!employeeToUpdate) return;
+
+            // 1. Preparamos los datos a enviar.
+            const updatedData = { ...employeeToUpdate, status: newStatus };
+
+            // 2. Llamamos al servicio para actualizar en el backend.
+            await employeeService.updateEmployee(employeeId, updatedData);
+
+            // 3. Actualizamos el estado local para reflejar el cambio.
+            setStaffData(staffData.map(emp => (emp.id === employeeId ? updatedData : emp)));
+            setSelectedStaff(updatedData); // Actualiza también el estado del modal si está abierto
+        } catch (error) {
+            console.error("Error al actualizar el estado del empleado:", error);
         }
     };
 
@@ -148,57 +261,114 @@ const Dashboard = () => {
         setStaffToDelete(employee);
     };
 
-    const handleConfirmDelete = () => {
-        setStaff(staff.filter(emp => emp.id !== staffToDelete.id));
-        setStaffToDelete(null); // Cierra el diálogo de confirmación
+    const handleConfirmDelete = async () => {
+        try {
+            await employeeService.deleteEmployee(staffToDelete.id);
+            setStaffData(staffData.filter(emp => emp.id !== staffToDelete.id));
+        } catch (error) {
+            console.error("Error al eliminar empleado:", error);
+        }
+        setStaffToDelete(null); 
     };
 
     const handleCancelDelete = () => {
         setStaffToDelete(null);
     };
 
+    // Preparar datos y opciones para la gráfica por separado
+    const chartData = {
+        labels: bestSellingByMonth.map(p => p.name),
+        datasets: [
+            {
+                label: 'Cantidad Vendida',
+                data: bestSellingByMonth.map(p => p.total_quantity),
+                backgroundColor: bestSellingByMonth.map((_, index) => `hsla(${index * 40}, 70%, 60%, 0.6)`),
+                borderColor: bestSellingByMonth.map((_, index) => `hsla(${index * 40}, 70%, 60%, 1)`),
+                borderWidth: 1,
+            },
+        ],
+    };
+
+    const chartOptions = {
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 20,
+                },
+                max: 100,
+            },
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+    };
+
+
     return (
         <div className={styles.dashboardContent}>
-            {/* Header con información de usuario y logout */}
             <header className={styles.header}>
                 <div className={styles.userControls}>
                     <span className={styles.userName}>{user?.name || 'Usuario'}</span>
-                    <span className={styles.userRole}>{user?.role?.name || 'Rol'}</span>
+                    <span className={styles.userRole}>{user ? (user.role_id === 1 ? 'admin' : 'empleado') : 'Cargo'}</span>
                     <button onClick={handleLogout} className={styles.logoutButton}>
                         <FaSignOutAlt /> Cerrar sesión
                     </button>
                 </div>
             </header>
 
+            {loading && <div className={styles.loading}>Cargando datos...</div>}
+            {error && <div className={styles.error}><FaExclamationTriangle /> {error}</div>}
+
+            {!loading && !error && (
+            <>
             <section className={styles.contentGrid}>
-                {/* Gráfico de Barras */}
+                {/* Tarjeta para el gráfico de productos más vendidos */}
                 <div className={styles.chartCard}>
-                    <h2 className={styles.chartTitle}>Productos más vendidos (Cantidad)</h2>
+                    <div className={styles.chartHeaderWithControls}>
+                        <h2 className={styles.chartTitle}>Productos más vendidos por Mes</h2>
+                        <div className={styles.datePickerControls}>
+                            <select name="month" value={selectedDate.month} onChange={handleDateChange} className={styles.monthYearSelect}>
+                                {Array.from({ length: 12 }, (_, i) => (
+                                    <option key={i + 1} value={i + 1}>
+                                        {new Date(0, i).toLocaleString('es-ES', { month: 'long' })}
+                                    </option>
+                                ))}
+                            </select>
+                            <select name="year" value={selectedDate.year} onChange={handleDateChange} className={styles.monthYearSelect}>
+                                {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                     <div className={styles.chartWrapper}>
-                        {/* La simulación para "No hay datos de ventas para mostrar." */}
-                        {chartData.length === 0 ? (
-                            <div className={styles.noData}>No hay datos de ventas para mostrar.</div>
+                        {chartLoading ? (
+                            <div className={styles.loading}>Cargando gráfico...</div>
+                        ) : bestSellingByMonth.length > 0 ? (
+                            <MovementsChart chartData={chartData} options={chartOptions} />
                         ) : (
-                            // ... Lógica del gráfico si hubiera datos ...
-                            null
+                            <div className={styles.noData}>
+                                No hay datos de ventas para el mes seleccionado.
+                            </div>
                         )}
                     </div>
                 </div>
 
-                {/* Empleado del Mes */}
-                <div className={styles.employeeCard}>
-                    <h2 className={styles.employeeTitle}>Empleado del Mes</h2>
-                    <div className={styles.employeeAvatar}>
-                        <FaUserCircle />
+                {/* KPI Card de Bajo Stock */}
+                <Link to="/admin/inventory" className={`${styles.kpiCard} ${styles.lowStockCard}`}>
+                    <div className={styles.kpiIcon}>
+                        <FaExclamationTriangle />
                     </div>
-                    <p className={styles.employeeName}>Nombre Empleado</p>
-                    <p className={styles.employeeRole}>Vendedor Estrella</p>
-                    <FaFire className={styles.employeeFireIcon} />
-                </div>
+                    <div className={styles.kpiContent}>
+                        <p className={styles.kpiValue}>{lowStockCount}</p>
+                        <h2 className={styles.kpiTitle}>Productos con Bajo Stock</h2>
+                    </div>
+                </Link>
+
             </section>
 
             {/* Sección de Gestión de Personal */}
-            <StaffList staff={staff} onView={handleViewStaff} onDelete={handleDeleteClick} />
+            <StaffList staff={staffData} onView={handleViewStaff} onDelete={handleDeleteClick} />
 
             {/* Sección de Resumen de Inventario */}
             <section className={styles.inventorySummary}>
@@ -213,13 +383,13 @@ const Dashboard = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {inventorySummary.map((item) => (
+                            {inventorySummaryData.map((item) => (
                                 <tr key={item.id}>
                                     <td>{item.name}</td>
-                                    <td>{item.quantity}</td>
+                                    <td>{item.stock}</td>
                                     <td>
-                                        <span className={`${styles.statusBadge} ${styles[item.status.toLowerCase().replace(' ', '')]}`}>
-                                            {item.status}
+                                        <span className={`${styles.statusBadge} ${item.status === 'available' ? styles.disponible : styles.nodisponible}`}>
+                                            {item.status === 'available' ? 'Disponible' : 'No Disponible'}
                                         </span>
                                     </td>
                                 </tr>
@@ -228,6 +398,8 @@ const Dashboard = () => {
                     </table>
                 </div>
             </section>
+            </>
+            )}
 
             {/* Renderizado condicional del Modal y Diálogo de Confirmación */}
             {isModalOpen && (
@@ -245,4 +417,4 @@ const Dashboard = () => {
     );
 };
 
-export default Dashboard; 
+export default Dashboard;
