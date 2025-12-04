@@ -32,11 +32,17 @@ body {
 
 .posPageContainer {
   display: flex;
+<<<<<<< HEAD
   flex-direction: column; /* Stack header and main grid vertically */
   min-height: 100vh;
   width: 100%;
   overflow-y: auto;
   padding: 1.5rem; /* Added padding to create space from the edges */
+=======
+  min-height: 100vh; /* Use min-height instead of height to allow content to extend beyond viewport */
+  width: 100%;
+  overflow-y: auto; /* Allow scrolling on the main wrapper */
+>>>>>>> a6364ef1978b8743ec4810de0eec7b7ad2fc4857
 }
 
 
@@ -51,7 +57,124 @@ body {
   overflow-y: auto; /* Allow internal scrolling if grid content overflows */
 }
 
+<<<<<<< HEAD
 
+=======
+/* Global Header (top of the page) */
+.globalHeader {
+  grid-column: span 1 / span 1; /* Default to single column for very small screens */
+  flex-shrink: 0;
+  margin-bottom: 1.5rem; /* mb-6 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-header-bg); /* New header background */
+  padding: 1rem 1.5rem; /* Add padding */
+  border-radius: 0.75rem; /* Rounded corners */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.posTitle {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 700; /* font-bold */
+  color: var(--color-header-text); /* White text for header */
+}
+
+.headerRightSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* space-x-4 */
+}
+
+.notificationButton {
+  position: relative;
+  color: var(--color-header-text); /* Light text */
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+.notificationButton:hover {
+  color: var(--color-primary-light); /* Lighter on hover */
+}
+
+.userProfileSection {
+  display: flex;
+  align-items: center; /* Vertically center all items */
+  gap: 0.75rem; /* space-x-3 */
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle white background */
+  padding: 0.5rem 0.75rem;
+  border-radius: 9999px; /* Fully rounded */
+  cursor: default; /* Not directly clickable for logout anymore */
+  transition: background-color 0.2s ease-in-out;
+  justify-content: flex-start; /* Group items at the start */
+}
+
+.logoutButton {
+  background-color: var(--color-red-500);
+  color: var(--color-background);
+  padding: 0 0.6rem;
+  border-radius: 9999px; /* Fully rounded */
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center; /* Vertically center content */
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease-in-out;
+  height: 2.5rem; /* Match userAvatar height */
+}
+
+.logoutButton:hover {
+  background-color: var(--color-red-600);
+}
+
+.logoutButton .material-symbols-outlined {
+  font-size: 1rem; /* Smaller icon */
+}
+
+.logoutButtonText {
+  display: none; /* Hidden by default, show on larger screens or hover */
+}
+
+@media (min-width: 640px) { /* sm breakpoint */
+  .logoutButtonText {
+    display: inline; /* Show text on larger screens */
+  }
+}
+
+
+.userAvatar {
+  width: 2.5rem; /* w-10 */
+  height: 2.5rem; /* h-10 */
+  border-radius: 9999px; /* rounded-full */
+}
+
+.userName {
+  font-weight: 600; /* font-semibold */
+  font-size: 0.875rem; /* text-sm */
+  color: var(--color-header-text); /* Light text */
+}
+
+.userEmail {
+  font-size: 0.75rem; /* text-xs */
+  color: var(--color-primary-light); /* Lighter text */
+}
+
+.userDropdownButton {
+  color: var(--color-header-text); /* Light text */
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+.userDropdownButton:hover {
+  color: var(--color-primary-light); /* Lighter on hover */
+}
+>>>>>>> a6364ef1978b8743ec4810de0eec7b7ad2fc4857
 
 /* Products Panel (left column) */
 .productPanel {
@@ -77,7 +200,13 @@ body {
   .mainGrid {
     grid-template-columns: repeat(10, 1fr); /* Revert to 10 columns for medium screens and up */
   }
+<<<<<<< HEAD
 
+=======
+  .globalHeader {
+    grid-column: span 10 / span 10; /* Header spans all columns on medium screens and up */
+  }
+>>>>>>> a6364ef1978b8743ec4810de0eec7b7ad2fc4857
   .productPanel {
     grid-column: span 6 / span 6; /* md:col-span-6 */
   }
@@ -87,14 +216,111 @@ body {
 }
 
 /* No change for lg and xl from previous, they already use 6 and 4 spans respectively */
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6364ef1978b8743ec4810de0eec7b7ad2fc4857
 
 
 /* Table Selection Group (New Dropdown) */
 .tableSelectionGroup {
   display: flex;
+<<<<<<< HEAD
   flex-direction: column;
 }
 
+=======
+  flex-wrap: wrap; /* Para que los botones puedan saltar de línea si no caben */
+  gap: 0.5rem; /* space-x-2 */
+  border-bottom: 1px solid var(--color-gray-200);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--color-background); /* Ensure solid background when sticky */
+  padding-bottom: 0.5rem; /* Add some padding below buttons */
+}
+
+.tableButtonContainer {
+  position: relative; /* Keep relative for potential future use or other elements */
+  display: flex; /* Use flex to align table button and delete button */
+  align-items: center; /* Center items vertically */
+}
+
+.tableButton {
+  padding: 0.75rem 1rem; /* px-4 py-3 */
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 600; /* font-semibold */
+  color: var(--color-on-surface-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative; /* Para la línea inferior */
+}
+.tableButton:hover {
+  color: var(--color-on-surface);
+}
+.tableButton::after { /* Simular border-b-2 on hover */
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background-color: transparent;
+    transition: background-color 0.2s ease-in-out;
+}
+.tableButton:hover::after {
+    background-color: var(--color-gray-300);
+}
+
+.deleteTableButton {
+  background: none;
+  border: none;
+  color: var(--color-red-500); /* Red by default */
+  cursor: pointer;
+  padding: 0 0.15rem; /* Even smaller padding */
+  font-size: 0.9rem; /* Slightly smaller icon */
+  opacity: 0.8; /* Slightly less opaque to be subtle but visible */
+  transition: opacity 0.2s ease-in-out, color 0.2s ease-in-out;
+  margin-left: -0.5rem; /* Pull it slightly closer to the button */
+  line-height: 1; /* Adjust line height for better vertical centering */
+}
+.deleteTableButton:hover {
+  opacity: 1;
+  color: var(--color-red-600); /* Darker red on hover */
+}
+
+
+.activeTableButton {
+  color: var(--color-primary);
+}
+.activeTableButton::after {
+  background-color: var(--color-primary);
+}
+.activeTableButton:hover::after { /* Override hover for active state */
+    background-color: var(--color-primary);
+}
+
+.addTableButton {
+  padding: 0.5rem 0.75rem; /* Adjusted padding */
+  color: var(--color-green-700); /* Use green color for icon */
+  background-color: var(--color-green-100); /* Subtle green background */
+  border: none;
+  border-radius: 0.5rem; /* Rounded corners */
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; /* Make it a flex container to center icon */
+  align-items: center;
+  justify-content: center;
+}
+.addTableButton:hover {
+  background-color: var(--color-green-600); /* Darker background on hover */
+  color: var(--color-background); /* White text on hover */
+}
+
+
+>>>>>>> a6364ef1978b8743ec4810de0eec7b7ad2fc4857
 /* Product Search and Grid */
 .productSearchAndGrid {
   display: flex;
@@ -105,10 +331,26 @@ body {
 
 .productHeaderAndSearch {
   display: flex;
+<<<<<<< HEAD
   flex-direction: column; /* Always column */
   align-items: flex-start; /* Align items to start */
   margin-bottom: 1rem; /* mb-4 */
   gap: 0.5rem; /* Add gap between title and search */
+=======
+  flex-direction: column; /* Changed to column for better small screen stacking */
+  align-items: flex-start; /* Align items to start */
+  justify-content: space-between;
+  margin-bottom: 1rem; /* mb-4 */
+  gap: 0.5rem; /* Add gap between title and search on small screens */
+}
+
+@media (min-width: 640px) { /* sm breakpoint */
+  .productHeaderAndSearch {
+    flex-direction: row; /* Back to row for larger screens */
+    align-items: center;
+    gap: 0; /* Remove gap */
+  }
+>>>>>>> a6364ef1978b8743ec4810de0eec7b7ad2fc4857
 }
 
 .productSectionTitle {
@@ -122,6 +364,7 @@ body {
   width: 100%; /* Make search full width on small screens */
 }
 
+<<<<<<< HEAD
 .searchContainerInteractive {
   display: flex; /* Make it a flex container */
   align-items: center; /* Vertically align items */
@@ -140,6 +383,11 @@ body {
 @media (min-width: 640px) { /* sm breakpoint */
   .searchContainer {
     width: 100%; /* Make search full width on larger screens for symmetry */
+=======
+@media (min-width: 640px) { /* sm breakpoint */
+  .searchContainer {
+    width: auto; /* Auto width on larger screens */
+>>>>>>> a6364ef1978b8743ec4810de0eec7b7ad2fc4857
   }
 }
 
@@ -321,10 +569,16 @@ body {
     list-style: none;
     padding: 0;
     margin: 0;
+<<<<<<< HEAD
     /* max-height: 300px;  Example max height, adjust as needed */
     overflow-y: auto; /* Ensure list itself scrolls */
     flex: 1; /* Allow cart list to take available space */
     padding-right: 0.5rem; /* Add some padding to the right for scrollbar */
+=======
+    max-height: 300px; /* Example max height, adjust as needed */
+    overflow-y: auto; /* Ensure list itself scrolls */
+    flex: 1; /* Allow cart list to take available space */
+>>>>>>> a6364ef1978b8743ec4810de0eec7b7ad2fc4857
 }
 
 .cartItem {
@@ -514,7 +768,11 @@ body {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-on-surface);
+<<<<<<< HEAD
   margin-bottom: 0.5rem;
+=======
+  margin-bottom: 1rem;
+>>>>>>> a6364ef1978b8743ec4810de0eec7b7ad2fc4857
 }
 
 .amountReceivedInputGroup {
@@ -627,6 +885,7 @@ body {
 /* Added .nequiVoucherInputGroup for consistency */
 .nequiVoucherInputGroup {
   margin-top: 1rem;
+<<<<<<< HEAD
 }
 
 
@@ -782,4 +1041,56 @@ body {
     .netIncomeDisplay {
         margin-bottom: 0;
     }
+=======
+}
+
+/* Custom Confirmation Dialog Styles */
+.confirmDialogOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Ensure it's on top of other content */
+}
+
+.confirmDialogBox {
+  background-color: var(--color-background);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.confirmDialogMessage {
+  font-size: 1.125rem;
+  color: var(--color-on-surface);
+  margin-bottom: 1.5rem;
+}
+
+.confirmDialogButtons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.confirmDeleteButton {
+  background-color: var(--color-red-500);
+  color: var(--color-background);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  border: none;
+}
+.confirmDeleteButton:hover {
+  background-color: var(--color-red-600);
+>>>>>>> a6364ef1978b8743ec4810de0eec7b7ad2fc4857
 }
