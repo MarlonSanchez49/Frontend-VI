@@ -51,10 +51,17 @@ const Sidebar = () => {
       
       {/* 3. Botón/Sección de Alerta/Ayuda (Rojo en la parte inferior) */}
       <div className={styles.helpContainer}>
-        <div className={styles.helpItem} title="Ayuda / Alerta">
-          {/* Usamos FaQuestionCircle, pero puede ser cualquier ícono de alerta */}
-          <FaQuestionCircle />
-        </div>
+        {/* Link a WhatsApp (usar .env con VITE_WHATSAPP_NUMBER) */}
+        {(() => {
+          const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '573107899187';
+          const DEFAULT_MESSAGE = encodeURIComponent('Hola, necesito ayuda.');
+          const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${DEFAULT_MESSAGE}`;
+          return (
+            <a href={waLink} target="_blank" rel="noreferrer" title="Ayuda / Alerta" className={styles.helpItem}>
+              <FaQuestionCircle />
+            </a>
+          );
+        })()}
       </div>
       
       {/* NOTA: El botón 'Cerrar Sesión' se traslada al Header Superior en el diseño de íconos. */}
