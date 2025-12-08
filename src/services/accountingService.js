@@ -8,6 +8,14 @@ const accountingService = {
   getSales: () => {
     return apiClient.get('/ventas'); // Asumiendo que el endpoint para listar ventas es /api/ventas
   },
+  /**
+   * Obtiene los detalles de una venta por ID.
+   * @param {number|string} id
+   * @returns {Promise<any>}
+   */
+  getSaleDetails: (id) => {
+    return apiClient.get(`/ventas/${id}`);
+  },
 };
 
 export default accountingService;

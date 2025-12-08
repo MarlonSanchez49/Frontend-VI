@@ -87,6 +87,19 @@
     border-color: var(--stat-blue);
 }
 
+.employeeFilterContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.employeeFilterSelect {
+    background-color: #f0f0f0;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 6px 8px;
+    color: var(--text-primary);
+}
+
 /* Estilo para el icono del calendario en navegadores webkit */
 .dateFilterInput::-webkit-calendar-picker-indicator {
     filter: none; /* Resetear el filtro invertido, ya que el input es oscuro */
@@ -129,6 +142,23 @@
     font-size: 0.9rem;
     color: var(--text-primary);
 }
+
+.detailsButton {
+    background-color: var(--stat-blue);
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.detailsButton:hover { opacity: 0.9; }
+
+/* Modal styles reuse some existentes, añadir pequeñas utilidades si faltan */
+.modalOverlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:2000; }
+.modalContent { background: var(--card-bg); padding:20px; border-radius:8px; width:90%; max-width:520px; box-shadow:0 8px 32px rgba(0,0,0,0.15); position:relative; }
+.modalCloseButton { position:absolute; top:10px; right:12px; background: transparent; border: none; color: var(--text-secondary); cursor: pointer; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; z-index:10; }
+.modalCloseButton:hover { background: rgba(0,0,0,0.04); }
 
 .income {
     color: var(--stat-green);

@@ -16,6 +16,23 @@ const employeeService = {
    */
   createEmployee: (employeeData) => {
     console.log('Enviando empleado:', employeeData); // Para depuración
+    // Si viene un archivo de foto, construir FormData para multipart
+    if (employeeData && (employeeData.photoFile instanceof File || employeeData.photoFile?.name)) {
+      const formData = new FormData();
+      // Añadir campos scalars
+      Object.keys(employeeData).forEach((key) => {
+        if (key === 'photoFile') return; // saltar, se añade abajo
+        const value = employeeData[key];
+        if (value !== undefined && value !== null) {
+          formData.append(key, value);
+        }
+      });
+      formData.append('photo', employeeData.photoFile);
+      return apiClient.post('/employees', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }
+
     return apiClient.post('/employees', employeeData);
   },
 
@@ -27,6 +44,24 @@ const employeeService = {
    */
   updateEmployee: (id, employeeData) => {
     console.log(`Actualizando empleado ${id}:`, employeeData); // Para depuración
+    // Si se envía una nueva foto, usar FormData
+    if (employeeData && (employeeData.photoFile instanceof File || employeeData.photoFile?.name)) {
+      const formData = new FormData();
+      Object.keys(employeeData).forEach((key) => {
+        if (key === 'photoFile') return;
+        const value = employeeData[key];
+        if (value !== undefined && value !== null) {
+          formData.append(key, value);
+        }
+      });
+      formData.append('photo', employeeData.photoFile);
+      // Para compatibilidad con backends que esperan _method=PUT en multipart
+      formData.append('_method', 'PUT');
+      return apiClient.post(`/employees/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }
+
     return apiClient.put(`/employees/${id}`, employeeData);
   },
 

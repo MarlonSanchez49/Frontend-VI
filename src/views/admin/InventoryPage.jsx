@@ -50,7 +50,7 @@ const ProductModal = ({ product, onClose, onSave, mode, categories }) => { // 4.
                         <input type="text" name="name" value={formData.name} onChange={handleChange} className={styles.modalInput} disabled={isViewMode} />
                     </div>
                     <div className={styles.modalField}>
-                        <label>Descripción:</label>
+                        <label>Costo:</label>
                         <textarea name="description" value={formData.description} onChange={handleChange} className={styles.modalInput} disabled={isViewMode} />
                     </div>
                     <div className={styles.modalField}>
@@ -322,7 +322,7 @@ const InventoryPage = () => {
               <thead>
                 <tr>
                   <th>PRODUCTO</th>
-                  <th>DESCRIPCIÓN</th>
+                  <th>COSTO</th>
                   <th>CATEGORÍA</th>
                   <th>STOCK</th>
                   <th>PRECIO</th>

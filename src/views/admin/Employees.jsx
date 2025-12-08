@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
 import { useAuth } from '../../hooks/useAuth';
@@ -10,77 +10,206 @@ import styles from './EmployeesPage.module.css'; // Asegúrate que este es el ar
 
 // --- Componente Modal para Detalles del Empleado (Copiado de Dashboard) ---
 const EmployeeDetailModal = ({ user, onClose, onSave, mode, errors }) => {
-    const [formData, setFormData] = useState(user);
+  const [formData, setFormData] = useState(user || {
+    name: '', email: '', password: '', position: '', status: 'active', phone: '', photo: null
+  });
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(user?.photo || null);
+  const [cameraActive, setCameraActive] = useState(false);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const streamRef = useRef(null);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+  useEffect(() => {
+    setFormData(user || { name: '', email: '', password: '', position: '', status: 'active', phone: '', photo: null });
+    setPhotoPreview(user?.photo || null);
+    setPhotoFile(null);
+    // detener cámara cuando cambia el usuario/modal
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+      setCameraActive(false);
     };
+  }, [user]);
 
-    const handleSave = () => {
-        onSave(formData);
-        // No cerrar el modal aquí para que los errores de validación se puedan mostrar
-    };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-    const isViewMode = mode === 'view';
+  // Nota: la subida de archivos por input fue eliminada — ahora solo cámara
 
-    return (
-        <div className={styles.modalOverlay}>
-            <div className={styles.modalContent}>
-                <button onClick={onClose} className={styles.modalCloseButton}><FaTimes /></button>
-                <h2>{mode === 'add' ? 'Añadir Nuevo Empleado' : (isViewMode ? 'Detalles del Empleado' : 'Editar Empleado')}</h2> 
-                <div className={styles.modalBody}>
-                    <div className={styles.modalField}>
-                        <label>Nombre:</label>
-                        {isViewMode ? <strong className={styles.modalValue}>{formData.name}</strong> : <input type="text" name="name" value={formData.name} onChange={handleChange} className={styles.modalInput} required />}
-                        {errors?.name && <span className={styles.validationError}>{errors.name[0]}</span>}
+  const startCamera = async () => {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('La cámara no está disponible en este dispositivo/navegador.');
+        return;
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+      setCameraActive(true);
+    } catch (err) {
+      console.error('Error al acceder a la cámara:', err);
+      alert('No se pudo acceder a la cámara. Comprueba permisos y conexión.');
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) videoRef.current.srcObject = null;
+    setCameraActive(false);
+  };
+
+  const handleCaptureFromCamera = () => {
+    try {
+      const video = videoRef.current;
+      if (!video) return;
+      const canvas = canvasRef.current || document.createElement('canvas');
+      const width = video.videoWidth || 640;
+      const height = video.videoHeight || 480;
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, width, height);
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          alert('Error al capturar la imagen.');
+          return;
+        }
+        const file = new File([blob], `photo_${Date.now()}.jpg`, { type: blob.type });
+        setPhotoFile(file);
+        setPhotoPreview(URL.createObjectURL(file));
+        stopCamera();
+      }, 'image/jpeg', 0.9);
+      // guardar referencia al canvas para posible uso futuro
+      canvasRef.current = canvas;
+    } catch (err) {
+      console.error('Error capturando desde cámara:', err);
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setPhotoFile(null);
+    setPhotoPreview(null);
+    setFormData(prev => ({ ...prev, photo: null }));
+  };
+
+  const handleSave = () => {
+    const payload = { ...formData };
+    if (photoFile) payload.photoFile = photoFile;
+    // incluir preview (URL de blob) para uso optimista en la tabla
+    if (photoPreview) payload.photoPreview = photoPreview;
+    onSave(payload);
+    // No cerrar el modal aquí para que los errores de validación se puedan mostrar
+  };
+
+  const isViewMode = mode === 'view';
+
+  return (
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContent}>
+        <button onClick={onClose} className={styles.modalCloseButton}><FaTimes /></button>
+        <h2>{mode === 'add' ? 'Añadir Nuevo Empleado' : (isViewMode ? 'Detalles del Empleado' : 'Editar Empleado')}</h2>
+        <div className={styles.modalBody}>
+          <div className={styles.modalField}>
+            <label>Foto:</label>
+            {isViewMode ? (
+              photoPreview ? <img src={photoPreview} alt="Foto empleado" className={styles.employeePhotoPreview} /> : <span className={styles.modalValue}>Sin foto</span>
+            ) : (
+              <div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexDirection: 'column', width: '100%' }}>
+                  <div style={{ display: 'flex', gap: 8, width: '100%', justifyContent: 'center' }}>
+                    <button type="button" onClick={() => (cameraActive ? stopCamera() : startCamera())} className={styles.addButton}>
+                      {cameraActive ? 'Detener cámara' : 'Usar cámara'}
+                    </button>
+                  </div>
+
+                  {cameraActive && (
+                    <div className={styles.cameraWrapper}>
+                      <video ref={videoRef} className={styles.cameraVideo} playsInline muted />
+                      <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                        <button type="button" onClick={handleCaptureFromCamera} className={styles.saveButton}>Capturar</button>
+                        <button type="button" onClick={stopCamera} className={styles.removePhotoButton}>Cancelar</button>
+                      </div>
                     </div>
-                    {!isViewMode && (
-                        <>
-                            <div className={styles.modalField}>
-                                <label>Email:</label>
-                                <input type="email" name="email" value={formData.email} onChange={handleChange} className={styles.modalInput} required />
-                                {errors?.email && <span className={styles.validationError}>{errors.email[0]}</span>}
-                            </div>
-                            {mode === 'add' && (
-                                <div className={styles.modalField}>
-                                    <label>Contraseña:</label>
-                                    <input type="password" name="password" value={formData.password} onChange={handleChange} className={styles.modalInput} required />
-                                    {errors?.password && <span className={styles.validationError}>{errors.password[0]}</span>}
-                                </div>
-                            )}
-                        </>
-                    )}
-                    <div className={styles.modalField}>
-                        <label>Cargo (Position):</label>
-                        {isViewMode ? <strong className={styles.modalValue}>{formData.position}</strong> : <input type="text" name="position" value={formData.position} onChange={handleChange} className={styles.modalInput} required />}
-                        {errors?.position && <span className={styles.validationError}>{errors.position[0]}</span>}
+                  )}
+
+                  {photoPreview && (
+                    <div className={styles.photoPreviewWrapper}>
+                      <img src={photoPreview} alt="Previsualización" className={styles.employeePhotoPreview} />
+                      <button type="button" onClick={handleRemovePhoto} className={styles.removePhotoButton}>Quitar</button>
                     </div>
-                    <div className={styles.modalField}>
-                        <label>Teléfono:</label>
-                        {isViewMode ? <strong className={styles.modalValue}>{formData.phone}</strong> : <input type="text" name="phone" value={formData.phone} onChange={handleChange} className={styles.modalInput} />}
-                        {errors?.phone && <span className={styles.validationError}>{errors.phone[0]}</span>}
-                    </div>
-                    <div className={styles.modalField}>
-                        <label htmlFor="status">Estado:</label>
-                        <select id="status" name="status" value={formData.status} onChange={handleChange} className={styles.statusSelect} disabled={isViewMode}>
-                            <option value="active">Activo</option>
-                            <option value="inactive">Inactivo</option>
-                        </select>
-                        {errors?.status && <span className={styles.validationError}>{errors.status[0]}</span>}
-                    </div>
+                  )}
                 </div>
-                {/* --- BOTÓN DE GUARDAR AÑADIDO --- */}
-                {mode !== 'view' && (
-                    <div className={styles.modalFooter}>
-                        <button onClick={handleSave} className={`${styles.saveButton} ${styles.addButton}`}>
-                            {mode === 'add' ? 'Añadir Empleado' : 'Guardar Cambios'}
-                        </button>
-                    </div>
-                )}
-            </div>
+              </div>
+            )}
+            {errors?.photo && <span className={styles.validationError}>{errors.photo[0]}</span>}
+          </div>
+
+          <div className={styles.modalField}>
+            <label>Nombre:</label>
+            {isViewMode ? <strong className={styles.modalValue}>{formData.name}</strong> : <input type="text" name="name" value={formData.name || ''} onChange={handleChange} className={styles.modalInput} required />}
+            {errors?.name && <span className={styles.validationError}>{errors.name[0]}</span>}
+          </div>
+
+          {!isViewMode && (
+            <>
+              <div className={styles.modalField}>
+                <label>Email:</label>
+                <input type="email" name="email" value={formData.email || ''} onChange={handleChange} className={styles.modalInput} required />
+                {errors?.email && <span className={styles.validationError}>{errors.email[0]}</span>}
+              </div>
+              {mode === 'add' && (
+                <div className={styles.modalField}>
+                  <label>Contraseña:</label>
+                  <input type="password" name="password" value={formData.password || ''} onChange={handleChange} className={styles.modalInput} required />
+                  {errors?.password && <span className={styles.validationError}>{errors.password[0]}</span>}
+                </div>
+              )}
+            </>
+          )}
+
+          <div className={styles.modalField}>
+            <label>Cargo (Position):</label>
+            {isViewMode ? <strong className={styles.modalValue}>{formData.position}</strong> : <input type="text" name="position" value={formData.position || ''} onChange={handleChange} className={styles.modalInput} required />}
+            {errors?.position && <span className={styles.validationError}>{errors.position[0]}</span>}
+          </div>
+
+          <div className={styles.modalField}>
+            <label>Teléfono:</label>
+            {isViewMode ? <strong className={styles.modalValue}>{formData.phone}</strong> : <input type="text" name="phone" value={formData.phone || ''} onChange={handleChange} className={styles.modalInput} />}
+            {errors?.phone && <span className={styles.validationError}>{errors.phone[0]}</span>}
+          </div>
+
+          <div className={styles.modalField}>
+            <label htmlFor="status">Estado:</label>
+            <select id="status" name="status" value={formData.status} onChange={handleChange} className={styles.statusSelect} disabled={isViewMode}>
+              <option value="active">Activo</option>
+              <option value="inactive">Inactivo</option>
+            </select>
+            {errors?.status && <span className={styles.validationError}>{errors.status[0]}</span>}
+          </div>
         </div>
-    );
+
+        {mode !== 'view' && (
+          <div className={styles.modalFooter}>
+            <button onClick={handleSave} className={`${styles.saveButton} ${styles.addButton}`}>
+              {mode === 'add' ? 'Añadir Empleado' : 'Guardar Cambios'}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 // --- Componente para Diálogo de Confirmación (Copiado de Dashboard) ---
@@ -213,15 +342,46 @@ const EmployeesPage = () => {
           position: employeeData.position,
           status: employeeData.status,
           phone: employeeData.phone,
+          // incluir foto si se ha seleccionado
+          ...(employeeData.photoFile ? { photoFile: employeeData.photoFile } : {}),
         };
-        await employeeService.createEmployee(newEmployeeData);
+        const response = await employeeService.createEmployee(newEmployeeData);
+        // intentar obtener el empleado creado desde la respuesta
+        let created = response?.data?.data || response?.data;
+        if (!created) {
+          // fallback optimista
+          created = {
+            id: Date.now(), // id temporal
+            name: newEmployeeData.name,
+            email: newEmployeeData.email,
+            position: newEmployeeData.position,
+            status: newEmployeeData.status,
+            phone: newEmployeeData.phone,
+          };
+        }
+        // si backend no devolvió photo, usar preview local si existe
+        if ((!created.photo && !created.photo_url) && employeeData.photoPreview) {
+          created.photo = employeeData.photoPreview;
+        }
+        // añadir al estado local para mostrar inmediatamente
+        setEmployees(prev => [created, ...(prev || [])]);
         setSuccessMessage(`Empleado "${employeeData.name}" añadido con éxito.`);
       } else { // 'edit' mode
-        await employeeService.updateEmployee(employeeData.id, employeeData);
+        const response = await employeeService.updateEmployee(employeeData.id, employeeData);
+        let updated = response?.data?.data || response?.data;
+        if (!updated) {
+          // fallback: usar datos enviados
+          updated = { ...employeeData };
+        }
+        if ((!updated.photo && !updated.photo_url) && employeeData.photoPreview) {
+          updated.photo = employeeData.photoPreview;
+        }
+        // actualizar en la lista local
+        setEmployees(prev => (prev || []).map(emp => (emp.id === updated.id ? { ...emp, ...updated } : emp)));
         setSuccessMessage(`Empleado "${employeeData.name}" actualizado con éxito.`);
       }
-      
-      fetchEmployees(); // Refrescar la lista de empleados
+      // refrescar en background para sincronizar con backend
+      fetchEmployees();
       handleCloseModal();
       setTimeout(() => setSuccessMessage(''), 3000);
 
@@ -325,29 +485,41 @@ const EmployeesPage = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {paginatedEmployees.map((emp) => (
-                            <tr key={emp.id}>
-                                <td className={styles.employeeName}>{emp.name}</td>
-                                <td>{emp.position}</td>
-                                <td>{emp.phone}</td>
-                                <td>
-                                    <span className={`${styles.statusBadge} ${styles[emp.status?.toLowerCase() || '']}`}>
-                                        {emp.status === 'active' ? 'Activo' : 'Inactivo'}
-                                    </span>
-                                </td>
-                                <td className={styles.actions}>
-                                    <button className={styles.viewButton} onClick={() => handleView(emp)} title="Ver">
-                                        <FaEye className={styles.viewIcon} />
-                                    </button>
-                                    <button className={styles.editButton} onClick={() => handleEdit(emp)} title="Editar">
-                                        <FaEdit className={styles.editIcon} />
-                                    </button>
-                                    <button className={styles.deleteButton} onClick={() => handleDelete(emp)} title="Eliminar">
-                                        <FaTrash className={styles.deleteIcon} />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                      {paginatedEmployees.map((emp) => {
+                        const photoUrl = emp.photo || emp.photo_url || null;
+                        return (
+                        <tr key={emp.id}>
+                          <td className={styles.employeeName}>
+                            <div className={styles.nameWithPhoto}>
+                              {photoUrl ? (
+                                <img src={photoUrl} alt={`Foto ${emp.name}`} className={styles.avatarImage} />
+                              ) : (
+                                <div className={styles.avatarFallback}>{(emp.name || 'U').charAt(0).toUpperCase()}</div>
+                              )}
+                              <span>{emp.name}</span>
+                            </div>
+                          </td>
+                          <td>{emp.position}</td>
+                          <td>{emp.phone}</td>
+                          <td>
+                            <span className={`${styles.statusBadge} ${styles[emp.status?.toLowerCase() || '']}`}>
+                              {emp.status === 'active' ? 'Activo' : 'Inactivo'}
+                            </span>
+                          </td>
+                          <td className={styles.actions}>
+                            <button className={styles.viewButton} onClick={() => handleView(emp)} title="Ver">
+                              <FaEye className={styles.viewIcon} />
+                            </button>
+                            <button className={styles.editButton} onClick={() => handleEdit(emp)} title="Editar">
+                              <FaEdit className={styles.editIcon} />
+                            </button>
+                            <button className={styles.deleteButton} onClick={() => handleDelete(emp)} title="Eliminar">
+                              <FaTrash className={styles.deleteIcon} />
+                            </button>
+                          </td>
+                        </tr>
+                        );
+                      })}
                     </tbody>
                 </table>
             </div>

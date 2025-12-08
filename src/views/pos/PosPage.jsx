@@ -124,6 +124,9 @@ const PosPage = () => {
     cart.reduce((total, item) => total + item.price * item.quantity, 0);
   const total = calculateTotal();
 
+  // --- Filtrar empleados activos ---
+  const activeEmployees = availableEmployees.filter(employee => employee.status === 'active');
+
   // --- Manejo de Mesas ---
 
   const fetchAndSetTables = async () => {
@@ -674,8 +677,8 @@ const PosPage = () => {
                     className={styles.formSelect}
                     disabled={isSubmitting || availableEmployees.length === 0}
                   >
-                    {availableEmployees.length === 0 && <option value="">No hay empleados disponibles</option>}
-                    {availableEmployees.map((employee) => (
+                    {activeEmployees.length === 0 && <option value="">No hay empleados activos</option>}
+                    {activeEmployees.map((employee) => (
                       <option key={employee.id} value={employee.id}>
                         {employee.name}
                       </option>
