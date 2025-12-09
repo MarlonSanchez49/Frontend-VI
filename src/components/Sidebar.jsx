@@ -9,7 +9,7 @@ import {
     FaUsers,    // Personas para Empleados
     FaBox,      // Caja para Inventario
     FaBook,     // Libro para Contabilidad
-    FaChartPie, // Gráfico para Reportes
+    FaTruck,    // Camión para Proveedores
     FaQuestionCircle, // Ícono para Ayuda
 } from 'react-icons/fa';
 
@@ -18,6 +18,7 @@ const adminLinks = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: FaChartBar, title: 'Dashboard' },
   { name: 'Empleados', href: '/admin/employees', icon: FaUsers, title: 'Empleados' },
   { name: 'Inventario', href: '/admin/inventory', icon: FaBox, title: 'Inventario' },
+  { name: 'Proveedores', href: '/admin/suppliers', icon: FaTruck, title: 'Proveedores' },
   { name: 'Contabilidad', href: '/admin/accounting', icon: FaBook, title: 'Contabilidad' },
 ];
 

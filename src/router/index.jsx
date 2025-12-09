@@ -13,7 +13,7 @@ import AdminDashboard from '../views/admin/Dashboard';
 import Employees from '../views/admin/Employees';
 import InventoryPage from '../views/admin/InventoryPage';
 import AccountingPage from '../views/admin/AccountingPage';
-import ReportsPage from '../views/admin/ReportsPage';
+import SuppliersPage from '../views/admin/SuppliersPage'; // Importar la nueva página
 
 // Vistas de Empleado
 import PosPage from '../views/pos/PosPage';
@@ -47,7 +47,7 @@ const router = createBrowserRouter([
           { path: 'employees', element: <Employees /> },
           { path: 'inventory', element: <InventoryPage /> },
           { path: 'accounting', element: <AccountingPage /> },
-          { path: 'reports', element: <ReportsPage /> }, // Nueva ruta para reportes
+          { path: 'suppliers', element: <SuppliersPage /> }, // Añadir la ruta de proveedores
            // Redirección por defecto para /admin
           { path: '', element: <Navigate to="dashboard" replace /> }
         ]
