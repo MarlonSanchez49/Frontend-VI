@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import productService from '../../services/productService';
 import employeeService from '../../services/employeeService';
@@ -167,8 +167,8 @@ const Dashboard = () => {
                 setInventorySummaryData(products);
                 
                 // Calcular productos con bajo stock desde la lista de productos ya obtenida
-                const LOW_STOCK_THRESHOLD = 10; // Puedes ajustar este valor
-                const lowStockProducts = products.filter(p => p.stock < LOW_STOCK_THRESHOLD);
+                const LOW_STOCK_THRESHOLD = 50; // El umbral es 50 o menos
+                const lowStockProducts = products.filter(p => p.stock <= LOW_STOCK_THRESHOLD);
                 setLowStockCount(lowStockProducts.length);
 
             } catch (error) {
@@ -312,11 +312,16 @@ const Dashboard = () => {
         setStaffToDelete(null);
     };
 
+    // --- Lógica de filtrado y paginación para el inventario de BAJO STOCK ---
+    const LOW_STOCK_THRESHOLD = 50;
+    // La tabla ahora SIEMPRE muestra solo los productos con bajo stock.
+    const lowStockInventory = inventorySummaryData.filter(p => p.stock <= LOW_STOCK_THRESHOLD);
+
     // --- Lógica de paginación para el inventario ---
-    const inventoryTotalPages = Math.ceil(inventorySummaryData.length / INVENTORY_ITEMS_PER_PAGE);
+    const inventoryTotalPages = Math.ceil(lowStockInventory.length / INVENTORY_ITEMS_PER_PAGE);
     const inventoryStartIndex = (inventoryCurrentPage - 1) * INVENTORY_ITEMS_PER_PAGE;
     const inventoryEndIndex = inventoryStartIndex + INVENTORY_ITEMS_PER_PAGE;
-    const paginatedInventory = inventorySummaryData.slice(inventoryStartIndex, inventoryEndIndex);
+    const paginatedInventory = lowStockInventory.slice(inventoryStartIndex, inventoryEndIndex);
 
     // --- Lógica de paginación para el personal ---
     const staffTotalPages = Math.ceil(staffData.length / STAFF_PER_PAGE);
@@ -395,7 +400,9 @@ const Dashboard = () => {
                 </div>
             </section>
             <section style={{ marginTop: '2rem' }}>
-                <Link to="/admin/inventory" className={`${styles.kpiCard} ${styles.lowStockCard}`}>
+                <div 
+                    className={`${styles.kpiCard} ${styles.lowStockCard}`} 
+                >
                     <div className={styles.kpiIcon}>
                         <FaExclamationTriangle />
                     </div>
@@ -403,8 +410,77 @@ const Dashboard = () => {
                         <p className={styles.kpiValue}>{lowStockCount}</p>
                         <h2 className={styles.kpiTitle}>Productos con Bajo Stock</h2>
                     </div>
-                </Link>
+                </div>
+            </section>
 
+            {/* Sección de Resumen de Inventario */}
+            <section className={styles.inventorySummary} id="low-stock-table">
+                <h2 className={styles.summaryTitle}>Productos con Bajo Stock</h2>
+                <div className={styles.tableContainer}>
+                    <table className={styles.summaryTable}>
+                        <thead>
+                            <tr>
+                                <th>PRODUCTO</th>
+                                <th>CANTIDAD</th>
+                                <th>ESTADO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {paginatedInventory.length > 0 ? (
+                                paginatedInventory.map((item) => (
+                                    <tr 
+                                        key={item.id} 
+                                        className={styles.lowStockRow} // Siempre es bajo stock
+                                    >
+                                        <td>{item.name}</td>
+                                        <td>{item.stock}</td>
+                                        <td>
+                                            <span className={`${styles.statusBadge} ${styles.bajostock}`}>
+                                                Bajo Stock
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="3" style={{ textAlign: 'center' }}>No hay productos con bajo stock.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                    {/* Controles de Paginación para el Inventario (Movidos aquí) */}
+                    {inventoryTotalPages > 1 && (
+                        <div className={styles.paginationControls}>
+                            <button
+                                onClick={() => setInventoryCurrentPage((prev) => prev - 1)}
+                                disabled={inventoryCurrentPage === 1}
+                                className={styles.paginationButton}
+                            >
+                                Anterior
+                            </button>
+                            <div className={styles.pageNumbers}>
+                                {Array.from({ length: inventoryTotalPages }, (_, i) => i + 1).map(
+                                    (pageNumber) => (
+                                    <button
+                                        key={pageNumber}
+                                        onClick={() => setInventoryCurrentPage(pageNumber)}
+                                        className={`${styles.pageNumberButton} ${inventoryCurrentPage === pageNumber ? styles.activePage : ""}`}
+                                    >
+                                        {pageNumber}
+                                    </button>
+                                    )
+                                )}
+                            </div>
+                            <button
+                                onClick={() => setInventoryCurrentPage((prev) => prev + 1)}
+                                disabled={inventoryCurrentPage >= inventoryTotalPages}
+                                className={styles.paginationButton}
+                            >
+                                Siguiente
+                            </button>
+                        </div>
+                    )}
+                </div>
             </section>
 
             {/* Sección de Gestión de Personal */}
@@ -443,66 +519,6 @@ const Dashboard = () => {
                 </div>
             )}
 
-            {/* Sección de Resumen de Inventario */}
-            <section className={styles.inventorySummary}>
-                <h2 className={styles.summaryTitle}>Resumen de Inventario</h2>
-                <div className={styles.tableContainer}>
-                    <table className={styles.summaryTable}>
-                        <thead>
-                            <tr>
-                                <th>PRODUCTO</th>
-                                <th>CANTIDAD</th>
-                                <th>ESTADO</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paginatedInventory.map((item) => (
-                                <tr key={item.id}>
-                                    <td>{item.name}</td>
-                                    <td>{item.stock}</td>
-                                    <td>
-                                        <span className={`${styles.statusBadge} ${item.status === 'available' ? styles.disponible : styles.nodisponible}`}>
-                                            {item.status === 'available' ? 'Disponible' : 'No Disponible'}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    {/* Controles de Paginación para el Inventario (Movidos aquí) */}
-                    {inventoryTotalPages > 1 && (
-                        <div className={styles.paginationControls}>
-                            <button
-                                onClick={() => setInventoryCurrentPage((prev) => prev - 1)}
-                                disabled={inventoryCurrentPage === 1}
-                                className={styles.paginationButton}
-                            >
-                                Anterior
-                            </button>
-                            <div className={styles.pageNumbers}>
-                                {Array.from({ length: inventoryTotalPages }, (_, i) => i + 1).map(
-                                    (pageNumber) => (
-                                    <button
-                                        key={pageNumber}
-                                        onClick={() => setInventoryCurrentPage(pageNumber)}
-                                        className={`${styles.pageNumberButton} ${inventoryCurrentPage === pageNumber ? styles.activePage : ""}`}
-                                    >
-                                        {pageNumber}
-                                    </button>
-                                    )
-                                )}
-                            </div>
-                            <button
-                                onClick={() => setInventoryCurrentPage((prev) => prev + 1)}
-                                disabled={inventoryCurrentPage >= inventoryTotalPages}
-                                className={styles.paginationButton}
-                            >
-                                Siguiente
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </section>
             </>
             )}
 

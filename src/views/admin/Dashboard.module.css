@@ -246,6 +246,12 @@
     border-bottom: none;
 }
 
+/* Estilo para resaltar la fila con bajo stock */
+.summaryTable .lowStockRow {
+    background-color: #fff1f2; /* Un rojo muy claro */
+    font-weight: 500;
+}
+
 .statusBadge {
     padding: 4px 10px;
     border-radius: 1rem;
