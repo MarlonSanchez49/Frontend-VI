@@ -7,6 +7,7 @@ import styles from './AccountingPage.module.css';
 import accountingService from '../../services/accountingService'; // Importar el nuevo servicio
 import paymentMethodService from '../../services/paymentMethodService'; // Importar el servicio de métodos de pago
 import employeeService from '../../services/employeeService';
+import productService from '../../services/productService';
 import { FaEye, FaTimes } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 
@@ -32,6 +33,12 @@ const AccountingPage = () => {
     const [detailsModalOpen, setDetailsModalOpen] = useState(false);
     const [loadingSaleDetails, setLoadingSaleDetails] = useState(false);
     const [saleDetailsError, setSaleDetailsError] = useState(null);
+    const [productsListForInventory, setProductsListForInventory] = useState([]);
+    const [showAddInventoryModal, setShowAddInventoryModal] = useState(false);
+    // selectedProductForInventory guarda el ID del producto seleccionado
+    const [selectedProductForInventory, setSelectedProductForInventory] = useState('');
+    const [addQuantity, setAddQuantity] = useState(1);
+    const [inventoryMessage, setInventoryMessage] = useState('');
 
     useEffect(() => {
         const fetchAccountingData = async () => {
@@ -372,6 +379,45 @@ const AccountingPage = () => {
         setSaleDetailsError(null);
     };
 
+    const closeAddInventoryModal = () => {
+        setShowAddInventoryModal(false);
+        setSelectedProductForInventory('');
+        setAddQuantity(1);
+        setInventoryMessage('');
+    };
+
+    const handleAddInventory = async () => {
+        setInventoryMessage('');
+        const prodId = selectedProductForInventory;
+        if (!prodId) {
+            setInventoryMessage('Seleccione un producto.');
+            return;
+        }
+        const qtyToAdd = Number(addQuantity) || 0;
+        if (qtyToAdd <= 0) {
+            setInventoryMessage('Ingrese una cantidad válida (>0).');
+            return;
+        }
+
+        // Buscar producto existente por id
+        const prod = productsListForInventory.find(p => String(p.id) === String(prodId));
+        if (!prod) {
+            setInventoryMessage('Producto no encontrado en la lista.');
+            return;
+        }
+
+        try {
+            const currentStock = Number(prod.stock ?? prod.existencia ?? prod.quantity ?? 0);
+            const newStock = currentStock + qtyToAdd;
+            await productService.updateProduct(prod.id, { stock: newStock });
+            setInventoryMessage('Inventario actualizado.');
+            setProductsListForInventory(prev => prev.map(p => p.id === prod.id ? ({ ...p, stock: newStock }) : p));
+        } catch (err) {
+            console.error('Error al actualizar inventario:', err);
+            setInventoryMessage('Error al actualizar inventario.');
+        }
+    };
+
     // Combinar estados de carga y error
     const isLoading = loadingSales || loadingPaymentMethods;
     const isError = errorSales || errorPaymentMethods;
@@ -458,6 +504,26 @@ const AccountingPage = () => {
                             <div>
                                 <button className={`${styles.detailsButton}`} onClick={exportSalesToXLSX} title="Exportar ventas a Excel (.xlsx)">Exportar a Excel</button>
                             </div>
+                            <div>
+                                <button className={`${styles.detailsButton}`} onClick={async () => {
+                                    setInventoryMessage('');
+                                    setShowAddInventoryModal(true);
+                                    try {
+                                        const resp = await productService.getProducts();
+                                        // Normalizar la respuesta a un array seguro
+                                        const raw = resp?.data?.products || resp?.data || resp?.products || resp || [];
+                                        let list = [];
+                                        if (Array.isArray(raw)) list = raw;
+                                        else if (raw && Array.isArray(raw.data)) list = raw.data;
+                                        else if (raw && typeof raw === 'object') list = Object.values(raw);
+                                        else list = [];
+                                        setProductsListForInventory(list);
+                                    } catch (err) {
+                                        console.error('Error cargando productos para inventario:', err);
+                                        setProductsListForInventory([]);
+                                    }
+                                }} title="Ingresar productos al inventario">Ingresar a Inventario</button>
+                            </div>
                         </div>
                     </div>
                     <div className={styles.totalDailyRevenue}>
@@ -518,6 +584,32 @@ const AccountingPage = () => {
                 </section>
                 {detailsModalOpen && (
                     <SaleDetailModal sale={selectedSale} loading={loadingSaleDetails} onClose={closeDetailsModal} paymentMethods={paymentMethods} />
+                )}
+                {showAddInventoryModal && (
+                    <div className={styles.modalOverlay}>
+                        <div className={styles.modalContent}>
+                            <button onClick={closeAddInventoryModal} className={styles.modalCloseButton} aria-label="Cerrar">×</button>
+                            <h2>Ingresar productos al inventario</h2>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                <label>Producto:</label>
+                                <select value={selectedProductForInventory} onChange={(e) => setSelectedProductForInventory(e.target.value)} className={styles.formSelect}>
+                                    <option value="">Seleccionar...</option>
+                                    {Array.isArray(productsListForInventory) && productsListForInventory.map(p => (
+                                        <option key={p.id} value={p.id}>{p.name || p.nombre || `#${p.id}`} (Stock: {p.stock ?? p.existencia ?? p.quantity ?? 0})</option>
+                                    ))}
+                                </select>
+
+                                <label>Cantidad a ingresar:</label>
+                                <input type="number" min="1" value={addQuantity} onChange={(e) => setAddQuantity(e.target.value)} className={styles.formInput} />
+
+                                {inventoryMessage && <div style={{ color: 'green' }}>{inventoryMessage}</div>}
+
+                                <div className={styles.modalActions}>
+                                    <button className={styles.saveButton} onClick={handleAddInventory}>Agregar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 )}
             </div>
         </div>

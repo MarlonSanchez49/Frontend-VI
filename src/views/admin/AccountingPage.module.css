@@ -157,8 +157,7 @@
 /* Modal styles reuse some existentes, añadir pequeñas utilidades si faltan */
 .modalOverlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:2000; }
 .modalContent { background: var(--card-bg); padding:20px; border-radius:8px; width:90%; max-width:520px; box-shadow:0 8px 32px rgba(0,0,0,0.15); position:relative; }
-.modalCloseButton { position:absolute; top:10px; right:12px; background: transparent; border: none; color: var(--text-secondary); cursor: pointer; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; z-index:10; }
-.modalCloseButton:hover { background: rgba(0,0,0,0.04); }
+.modalCloseButton { position:absolute; top:10px; right:12px; background: transparent; border: none; color: #2c2c2c; /* Rojo */ font-size: 2rem; /* Aumentar tamaño para '×' */ line-height: 1; cursor: pointer; width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; z-index:10; transition: background-color 0.2s, color 0.2s; }
 
 .income {
     color: var(--stat-green);
@@ -222,3 +221,50 @@
 .logoutButton:hover {
     background-color: #c0392b;
 }
+
+/* Form controls used in modals */
+.formInput {
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: #fafafa;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+.formInput:focus { outline: none; border-color: var(--stat-blue); box-shadow: 0 0 0 3px rgba(59,130,246,0.08); }
+
+.formSelect {
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+/* Botones del modal de ingreso a inventario */
+.modalActions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+.saveButton {
+    background: linear-gradient(180deg, #10b981, #059669);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    box-shadow: 0 6px 18px rgba(5,150,105,0.12);
+}
+.saveButton:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(5,150,105,0.18); }
+
+.cancelButton {
+    background: #f3f4f6;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.cancelButton:hover { background: #e9ecef; }
