@@ -8,6 +8,7 @@ import accountingService from '../../services/accountingService'; // Importar el
 import paymentMethodService from '../../services/paymentMethodService'; // Importar el servicio de métodos de pago
 import employeeService from '../../services/employeeService';
 import { FaEye, FaTimes } from 'react-icons/fa';
+import * as XLSX from 'xlsx';
 
 const AccountingPage = () => {
     const navigate = useNavigate();
@@ -93,6 +94,28 @@ const AccountingPage = () => {
         return filteredSales.reduce((sum, sale) => sum + Number(sale.total || 0), 0);
     };
 
+    // Helper para formatear/extraer la mesa de una venta (soporta objetos y múltiples nombres)
+    const formatTable = (s) => {
+        if (!s) return '';
+        const t = s?.mesa || s?.table || s?.table_number || s?.mesa_numero || s?.table_name || s?.mesa_nombre || s?.table_info || s?.mesa_info || s?.table_id || s?.mesa_id;
+        if (!t && s?.table && typeof s.table === 'object') {
+            const o = s.table;
+            return o.name || o.nombre || o.number || o.numero || String(o.id || '');
+        }
+        if (typeof t === 'object') {
+            return t.name || t.nombre || t.number || t.numero || String(t.id || '');
+        }
+        return t ? String(t) : '';
+    };
+
+    // Redondear números (quitar decimales)
+    const roundNumber = (v) => {
+        if (v === '' || v === null || v === undefined) return '';
+        const n = Number(v);
+        if (!Number.isFinite(n)) return '';
+        return Math.round(n);
+    };
+
     // Ventas filtradas para la tabla según rango de fechas y empleado
     const getFilteredSalesForDisplay = () => {
         if (!sales || sales.length === 0) return [];
@@ -138,6 +161,186 @@ const AccountingPage = () => {
 
     const filteredSalesForDisplay = getFilteredSalesForDisplay();
     const currentRangeRevenue = calculateRevenueForRange(startDate, endDate, sales);
+
+    // Exportar ventas filtradas a CSV (compatible con Excel)
+    const exportSalesToCSV = () => {
+        const rows = [];
+        // Cabeceras
+        rows.push(['id', 'fecha', 'empleado', 'mesa', 'metodo_pago', 'total', 'productos']);
+
+        const formatEmployee = (s) => {
+            return s?.user?.name || s?.employee?.name || s?.mesero?.name || s?.waiter_name || s?.employee_name || s?.user_name || s?.seller_name || String(s?.user_id || s?.employee_id || s?.waiter_id || '') || 'N/A';
+        };
+
+        
+
+        const getPaymentName = (s) => {
+            const pmId = s?.metodo_pago_id || s?.payment_method_id || s?.payment_method;
+            const found = paymentMethods.find(pm => String(pm.id) === String(pmId));
+            if (found) return found.name || String(found.name);
+            if (s?.payment_method_name) return s.payment_method_name;
+            return 'N/A';
+        };
+
+        const normalizeItems = (sale) => {
+            const itemsRaw = sale?.items || sale?.detalles || sale?.lines || sale?.sale_items || sale?.products || sale?.order_items || sale?.detalles_venta || sale?.items_sold || sale?.sale_items_details || [];
+            let items = [];
+            if (Array.isArray(itemsRaw)) items = itemsRaw;
+            else if (itemsRaw && typeof itemsRaw === 'object') items = Object.values(itemsRaw);
+            return items.map(it => {
+                if (!it) return '';
+                // nombre
+                const name = (typeof it === 'string' || typeof it === 'number') ? String(it) : (it.name || it.product_name || it.title || (it.product && it.product.name) || 'Item');
+                // qty
+                const qtyRaw = it.quantity ?? it.cantidad ?? it.qty ?? it.count ?? it.cant ?? (it.pivot && (it.pivot.quantity ?? it.pivot.cantidad)) ?? '';
+                const qty = qtyRaw === '' ? '' : roundNumber(qtyRaw);
+                return `${name}${qty !== '' ? ' x' + qty : ''}`;
+            }).filter(Boolean).join(' | ');
+        };
+
+        for (const s of filteredSalesForDisplay) {
+            const id = s.id ?? '';
+            const fecha = s.created_at ? new Date(s.created_at).toLocaleString() : '';
+            const empleado = formatEmployee(s);
+            const mesa = formatTable(s);
+            const metodo = getPaymentName(s);
+            const total = roundNumber(s?.total ?? s?.cantidad_total ?? 0);
+            const productos = normalizeItems(s);
+            rows.push([id, fecha, empleado, mesa, metodo, total, productos]);
+        }
+
+        // Convertir a CSV
+        const csvContent = rows.map(r => r.map(field => {
+            if (field === null || field === undefined) return '';
+            const f = String(field);
+            // escapado básico de comillas dobles
+            return '"' + f.replace(/"/g, '""') + '"';
+        }).join(',')).join('\r\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const startStr = new Date(startDate).toISOString().split('T')[0];
+        const endStr = new Date(endDate).toISOString().split('T')[0];
+        a.href = url;
+        a.download = `ventas_${startStr}_a_${endStr}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    // Exportar ventas filtradas a .xlsx (mejor presentación)
+    const exportSalesToXLSX = () => {
+        // Preparar filas para hoja 'Ventas' y hoja 'Productos'
+        const salesRows = [];
+        const productsRows = [];
+        // Añadir columna de Productos detallados en la hoja Ventas
+        salesRows.push(['ID', 'Fecha', 'Empleado', 'Mesa', 'Método Pago', 'Total', 'Productos Detalle']);
+        productsRows.push(['Venta ID', 'Producto', 'Cantidad', 'Precio']);
+
+        const formatEmployee = (s) => {
+            return s?.user?.name || s?.employee?.name || s?.mesero?.name || s?.waiter_name || s?.employee_name || s?.user_name || s?.seller_name || String(s?.user_id || s?.employee_id || s?.waiter_id || '') || 'N/A';
+        };
+
+        const getPaymentName = (s) => {
+            const pmId = s?.metodo_pago_id || s?.payment_method_id || s?.payment_method;
+            const found = paymentMethods.find(pm => String(pm.id) === String(pmId));
+            if (found) return found.name || String(found.name);
+            if (s?.payment_method_name) return s.payment_method_name;
+            return 'N/A';
+        };
+
+        const normalizeItemsToArray = (sale) => {
+            const itemsRaw = sale?.items || sale?.detalles || sale?.lines || sale?.sale_items || sale?.products || sale?.order_items || sale?.detalles_venta || sale?.items_sold || sale?.sale_items_details || [];
+            let items = [];
+            if (Array.isArray(itemsRaw)) items = itemsRaw;
+            else if (itemsRaw && typeof itemsRaw === 'object') items = Object.values(itemsRaw);
+            return items.map(it => {
+                if (!it) return null;
+                const name = (typeof it === 'string' || typeof it === 'number') ? String(it) : (it.name || it.product_name || it.title || (it.product && it.product.name) || 'Item');
+                const qtyRaw = it.quantity ?? it.cantidad ?? it.qty ?? it.count ?? it.cant ?? (it.pivot && (it.pivot.quantity ?? it.pivot.cantidad)) ?? '';
+                const qty = qtyRaw === '' ? '' : roundNumber(qtyRaw);
+                const priceRaw = it.price ?? it.precio ?? it.unit_price ?? it.price_unit ?? it.price_val ?? it.value ?? it.priceValue ?? it.total_price ?? it.price_total ?? '';
+                const price = priceRaw === '' ? '' : roundNumber(priceRaw);
+                return { name, qty, price };
+            }).filter(Boolean);
+        };
+
+        for (const s of filteredSalesForDisplay) {
+            const id = s.id ?? '';
+            const fecha = s.created_at ? new Date(s.created_at).toLocaleString() : '';
+            const empleado = formatEmployee(s);
+            const mesa = formatTable(s);
+            const metodo = getPaymentName(s);
+            const total = roundNumber(s?.total ?? s?.cantidad_total ?? 0);
+
+            const items = normalizeItemsToArray(s);
+            // Crear texto detallado para la celda de productos en la hoja Ventas
+            const productDetailLines = items.map(it => {
+                const priceStr = (it.price !== '' && it.price !== undefined && it.price !== null) ? Number(it.price).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }) : '';
+                const qtyStr = (it.qty !== '' && it.qty !== undefined && it.qty !== null) ? String(it.qty) : '';
+                return `${it.name}${qtyStr ? ' x' + qtyStr : ''}${priceStr ? ' — ' + priceStr : ''}`;
+            });
+            const productosDetalle = productDetailLines.join('\n');
+
+            for (const it of items) {
+                productsRows.push([id, it.name, it.qty === '' ? '' : roundNumber(it.qty), it.price === '' ? '' : roundNumber(it.price)]);
+            }
+            // Añadir la fila de venta con columna de detalle de productos
+            salesRows.push([id, fecha, empleado, mesa, metodo, total, productosDetalle]);
+        }
+
+        const wb = XLSX.utils.book_new();
+        const wsSales = XLSX.utils.aoa_to_sheet(salesRows);
+        // Ajustar anchos de columnas (en píxeles aproximados) - ahora 7 columnas
+        wsSales['!cols'] = [{ wpx: 60 }, { wpx: 160 }, { wpx: 160 }, { wpx: 80 }, { wpx: 120 }, { wpx: 100 }, { wpx: 360 }];
+        XLSX.utils.book_append_sheet(wb, wsSales, 'Ventas');
+
+        const wsProducts = XLSX.utils.aoa_to_sheet(productsRows);
+        wsProducts['!cols'] = [{ wpx: 80 }, { wpx: 300 }, { wpx: 80 }, { wpx: 100 }];
+        // Intentar aplicar formato tipo "tabla": encabezados en negrita, autofiltro y anchos
+        try {
+            const prodLen = productsRows.length;
+            // Asegurar que las celdas de cantidad/precio sean numéricas
+            for (let r = 1; r < prodLen; r++) {
+                const rowIndex = r + 1; // 1-based for Excel
+                const qtyAddr = XLSX.utils.encode_cell({ c: 2, r: r });
+                const priceAddr = XLSX.utils.encode_cell({ c: 3, r: r });
+                if (wsProducts[qtyAddr] && wsProducts[qtyAddr].v !== '' && wsProducts[qtyAddr].v !== null) {
+                    wsProducts[qtyAddr].t = 'n';
+                    wsProducts[qtyAddr].v = Number(wsProducts[qtyAddr].v);
+                }
+                if (wsProducts[priceAddr] && wsProducts[priceAddr].v !== '' && wsProducts[priceAddr].v !== null) {
+                    wsProducts[priceAddr].t = 'n';
+                    wsProducts[priceAddr].v = Number(wsProducts[priceAddr].v);
+                }
+            }
+
+            // Encabezados en negrita y centrados
+            const headerCols = productsRows[0].length;
+            for (let c = 0; c < headerCols; c++) {
+                const addr = XLSX.utils.encode_cell({ c, r: 0 });
+                if (!wsProducts[addr]) wsProducts[addr] = { v: productsRows[0][c], t: 's' };
+                wsProducts[addr].s = wsProducts[addr].s || {};
+                wsProducts[addr].s.font = Object.assign({}, wsProducts[addr].s.font, { bold: true });
+                wsProducts[addr].s.alignment = Object.assign({}, wsProducts[addr].s.alignment, { horizontal: 'center' });
+            }
+
+            // Agregar autofiltro para la tabla
+            wsProducts['!autofilter'] = { ref: `A1:D${prodLen}` };
+        } catch (err) {
+            // No bloquear la exportación si algo falla en el formateo
+            console.warn('No se pudo aplicar formato de tabla a Productos:', err);
+        }
+
+        XLSX.utils.book_append_sheet(wb, wsProducts, 'Productos');
+
+        const startStr = new Date(startDate).toISOString().split('T')[0];
+        const endStr = new Date(endDate).toISOString().split('T')[0];
+        const filename = `ventas_${startStr}_a_${endStr}.xlsx`;
+        XLSX.writeFile(wb, filename);
+    };
 
     const handleLogout = () => {
         logout();
@@ -251,6 +454,9 @@ const AccountingPage = () => {
                                         <option key={emp.id} value={emp.id}>{emp.name || emp.nombre || `#${emp.id}`}</option>
                                     ))}
                                 </select>
+                            </div>
+                            <div>
+                                <button className={`${styles.detailsButton}`} onClick={exportSalesToXLSX} title="Exportar ventas a Excel (.xlsx)">Exportar a Excel</button>
                             </div>
                         </div>
                     </div>
@@ -377,7 +583,7 @@ const SaleDetailModal = ({ sale, onClose, loading, paymentMethods }) => {
                         <p><strong>Mesero:</strong> {safeString(rawWaiter)}</p>
                         <p><strong>Mesa:</strong> {safeString(rawTable)}</p>
                         <p><strong>Método de pago:</strong> {safeString(paymentMethodName)}</p>
-                        <p><strong>Total:</strong> {Number(total).toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</p>
+                        <p><strong>Total:</strong> {Number(total).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
 
                         <h3>Productos</h3>
                         {items && items.length > 0 ? (
@@ -442,7 +648,7 @@ const SaleDetailModal = ({ sale, onClose, loading, paymentMethods }) => {
                                         const name = getName(it);
                                         const qty = getQty(it);
                                         const priceVal = getPrice(it);
-                                        const priceFormatted = priceVal !== null ? Number(priceVal).toLocaleString('es-CO', { style: 'currency', currency: 'COP' }) : '-';
+                                        const priceFormatted = priceVal !== null ? Number(priceVal).toLocaleString('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }) : '-';
 
                                         return (
                                             <tr key={idx}>
